@@ -30,6 +30,9 @@
   label{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
   input,select{background:#070610;border:1px solid var(--line);color:#fff;border-radius:11px;padding:11px 13px;font-family:'Poppins';font-size:14px;width:100%;transition:.15s}
   input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(155,127,212,.18)}
+  .input-err{border-color:var(--warn) !important;box-shadow:0 0 0 3px rgba(255,92,122,.18) !important}
+  .err-msg{display:none;color:var(--warn);font-size:12px;margin-top:7px;font-weight:500}
+  .err-msg.show{display:block}
   input[readonly]{background:#050409;color:var(--accent-bright);cursor:not-allowed;border-style:dashed}
   input[readonly]:focus{box-shadow:none;border-color:var(--line)}
   /* sin spinners feos del navegador */
@@ -42,20 +45,21 @@
   .stepper button:active{transform:scale(.9)}
   .stepper input{border:none;box-shadow:none;background:transparent;text-align:center;padding:0;width:100%;font-weight:600;border-radius:0}
   .stepper input:focus{box-shadow:none;border:none}
-  .svc{display:grid;grid-template-columns:1fr 100px 118px;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}
-  .svc:last-child{border-bottom:none}
-  .svc .name{font-weight:500;font-size:14px}
-  .svc .desc{font-size:11.5px;color:var(--muted);margin-top:2px}
-  .billtag{display:inline-block;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:6px;margin-top:5px;font-weight:600}
+  #services{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:620px){#services{grid-template-columns:1fr}}
+  .svc{background:#070610;border:1px solid var(--line);border-radius:14px;padding:13px 14px;display:flex;flex-direction:column;gap:10px;transition:.15s}
+  .svc:hover{border-color:var(--accent-deep)}
+  .svc .name{font-weight:600;font-size:13.5px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;line-height:1.25}
+  .svc .desc{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.35}
+  .billtag{display:inline-block;font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:5px;font-weight:700;flex:none}
   .billtag.mensual{background:rgba(155,127,212,.16);color:var(--accent-bright)}
   .billtag.unica{background:rgba(199,125,255,.14);color:var(--accent-magenta)}
-  .spec-in{margin-top:8px;padding:8px 11px;font-size:12.5px;border-radius:9px;width:100%;max-width:320px}
-  .svc input{padding:9px 10px;text-align:center}
-  .svc .price-wrap{position:relative}
-  .svc .price-wrap::before{content:attr(data-cur);position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;pointer-events:none}
-  .svc .price-wrap input{padding-left:24px;text-align:left}
-  .qty-head{display:grid;grid-template-columns:1fr 100px 118px;gap:12px;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:4px}
-  .toggles{margin-top:22px;display:grid;gap:10px}
+  .spec-in{margin-top:8px;padding:8px 11px;font-size:12px;border-radius:9px;width:100%}
+  .svc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;gap:10px}
+  .price-fixed{font-weight:700;font-size:15px;color:#fff;white-space:nowrap}
+  .price-fixed span{font-size:10px;color:var(--muted);font-weight:400;letter-spacing:.04em}
+  .toggles{margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:620px){.toggles{grid-template-columns:1fr}}
   .tg{display:flex;align-items:center;justify-content:space-between;background:#070610;border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
   .tg:hover{border-color:var(--accent-deep)}
   .tg .l{font-size:13.5px;font-weight:500}
@@ -167,12 +171,11 @@
   <div class="grid">
     <div class="card">
       <h2>Servicios del plan</h2>
-      <p class="hint">Edite el precio unitario y la cantidad. Cambie moneda y piso mínimo desde Ajustes.</p>
-      <div class="qty-head"><span>Servicio</span><span style="text-align:center">Precio unit.</span><span style="text-align:center">Cantidad</span></div>
+      <p class="hint">Ajuste la cantidad de cada servicio. Los precios son fijos.</p>
       <div id="services"></div>
 
       <div class="toggles">
-        <label style="margin:18px 0 -2px">Recargos estratégicos</label>
+        <label style="grid-column:1/-1;margin:18px 0 -2px">Recargos estratégicos</label>
         <div class="tg"><div class="l">Urgencia / entrega exprés<small>Trabajo a contrarreloj fuera de calendario</small></div><div class="r"><input type="number" id="r_urg" value="20" min="0">%<input type="checkbox" data-rec="r_urg"></div></div>
         <div class="tg"><div class="l">Exclusividad y derechos de uso<small>Cesión amplia / uso en pauta sin límite</small></div><div class="r"><input type="number" id="r_exc" value="25" min="0">%<input type="checkbox" data-rec="r_exc"></div></div>
         <div class="tg"><div class="l">Estrategia y guion<small>Dirección creativa, no solo producción</small></div><div class="r"><input type="number" id="r_str" value="15" min="0">%<input type="checkbox" data-rec="r_str"></div></div>
@@ -198,12 +201,14 @@
         </div>
         <div class="floor-msg" id="floormsg"></div>
         <div class="breakdown" id="breakdown"></div>
-        <button class="btn cotizar" onclick="goToForm()">Cotizar →</button>
+        <label style="margin-bottom:6px">Nombre del plan / proyecto *</label>
+        <input id="planName" placeholder="Obligatorio para continuar" oninput="$('#planErr').classList.remove('show');this.classList.remove('input-err')">
+        <div id="planErr" class="err-msg">Escribe el nombre del plan para poder cotizar.</div>
+        <button class="btn cotizar" style="margin-top:12px" onclick="goToForm()">Cotizar →</button>
         <div style="display:flex;gap:10px;margin-top:10px">
-          <input id="planName" placeholder="Nombre del plan" style="flex:1">
-          <button class="btn primary" style="width:auto;padding:13px 16px" onclick="savePlan()">Guardar</button>
+          <button class="btn primary" style="flex:1" onclick="savePlan()">Guardar plan</button>
+          <button class="btn ghost" style="flex:1;margin:0" onclick="resetAll()">Limpiar</button>
         </div>
-        <button class="btn ghost" onclick="resetAll()">Limpiar cantidades</button>
       </div>
     </div>
   </div>
@@ -346,13 +351,18 @@ function buildServices(){
   const c=$('#services');c.innerHTML='';
   SERVICES.forEach(s=>{
     const row=document.createElement('div');row.className='svc';
-    row.innerHTML=`<div><div class="name">${s.name}</div><div class="desc">${s.desc}</div><span class="billtag ${s.bill}">${BILL[s.bill].label}</span>
-        ${s.specify?`<input class="spec-in" type="text" data-spec="${s.id}" placeholder="${s.specify}">`:''}</div>
-      <div class="price-wrap" data-cur="${$('#cur').value}"><input type="number" min="0" value="${s.price}" data-price="${s.id}"></div>
-      <div class="stepper"><button type="button" data-step="-1">−</button><input type="number" min="0" value="${s.qty}" data-qty="${s.id}"><button type="button" data-step="1">+</button></div>`;
+    row.innerHTML=`<div>
+        <div class="name">${s.name} <span class="billtag ${s.bill}">${BILL[s.bill].tag}</span></div>
+        <div class="desc">${s.desc}</div>
+        ${s.specify?`<input class="spec-in" type="text" data-spec="${s.id}" placeholder="${s.specify}">`:''}
+      </div>
+      <div class="svc-foot">
+        <div class="price-fixed" data-pricelbl="${s.id}">${money(s.price)} <span>/ unidad</span></div>
+        <div class="stepper"><button type="button" data-step="-1">−</button><input type="number" min="0" value="${s.qty}" data-qty="${s.id}"><button type="button" data-step="1">+</button></div>
+      </div>`;
     c.appendChild(row);
   });
-  c.querySelectorAll('input').forEach(i=>i.addEventListener('input',calc));
+  c.querySelectorAll('[data-qty],[data-spec]').forEach(i=>i.addEventListener('input',calc));
   c.querySelectorAll('.stepper button').forEach(b=>b.addEventListener('click',()=>{
     const inp=b.parentElement.querySelector('input');
     inp.value=Math.max(0,(+inp.value||0)+(+b.dataset.step));calc();
@@ -362,7 +372,7 @@ function buildServices(){
 function gather(){
   let base=0,pieces=0,monthlyBase=0,onceBase=0;const lines=[];
   SERVICES.forEach(s=>{
-    const price=+$(`[data-price="${s.id}"]`).value||0;
+    const price=s.price;
     const qty=+$(`[data-qty="${s.id}"]`).value||0;
     if(qty>0){
       const t=price*qty;base+=t;pieces+=qty;
@@ -392,7 +402,7 @@ function gather(){
 }
 
 function calc(){
-  const cur=$('#cur').value;document.querySelectorAll('.price-wrap').forEach(p=>p.dataset.cur=cur);
+  SERVICES.forEach(s=>{const el=$(`[data-pricelbl="${s.id}"]`);if(el)el.innerHTML=`${money(s.price)} <span>/ unidad</span>`;});
   const g=gather();
   const bd=$('#breakdown');bd.innerHTML='';
   g.lines.forEach(l=>bd.insertAdjacentHTML('beforeend',`<div class="brow"><span>${l.qty}× ${l.name} <span style="color:var(--muted);font-size:11px">${BILL[l.bill].tag}</span></span><b>${money(l.total)}</b></div>`));
@@ -434,6 +444,9 @@ function resetAll(){document.querySelectorAll('[data-qty]').forEach(i=>i.value=0
 function show(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$('#'+id).classList.add('active');window.scrollTo(0,0);}
 function goToForm(){
   if(gather().total<=0){alert('Arme un plan antes de cotizar.');return;}
+  if(!$('#planName').value.trim()){
+    $('#planErr').classList.add('show');$('#planName').classList.add('input-err');$('#planName').focus();return;
+  }
   if(!$('#f_date').value){const t=new Date();$('#f_date').value=t.toISOString().slice(0,10);}
   updateValid();show('formView');
 }
