@@ -124,13 +124,17 @@
   .meta .small2{font-size:10.5px;color:#777;margin-top:9px}
   .meta .exec{font-size:15px;font-weight:bold;color:#111}
   .sec-title{color:#6f4fb3;font-size:12px;font-weight:bold;letter-spacing:.16em;margin:26px 0 10px}
-  table.svc-t{width:100%;border-collapse:collapse;font-size:12.5px}
-  table.svc-t thead th{background:#000;color:#fff;text-align:left;padding:12px 14px;font-size:11.5px;font-weight:bold}
+  table.svc-t{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px;border:1px solid #e4e0f3;border-radius:14px;overflow:hidden}
+  table.svc-t thead th{background:#0d0b14;color:#fff;text-align:left;padding:13px 16px;font-size:10.5px;font-weight:bold;letter-spacing:.08em;text-transform:uppercase}
   table.svc-t thead th.c{text-align:center} table.svc-t thead th.r{text-align:right}
-  table.svc-t tbody td{padding:14px;vertical-align:middle;color:#1a1a1a}
-  table.svc-t tbody tr:nth-child(even){background:#ece9fa}
-  table.svc-t td.c{text-align:center} table.svc-t td.r{text-align:right}
-  table.svc-t .d1{font-weight:bold} table.svc-t .d2{color:#555;font-size:11.5px;margin-top:2px}
+  table.svc-t tbody td{padding:13px 16px;vertical-align:middle;color:#1a1a1a;border-bottom:1px solid #efedf7}
+  table.svc-t tbody tr:last-child td{border-bottom:none}
+  table.svc-t td.c{text-align:center} table.svc-t td.r{text-align:right;font-weight:600;white-space:nowrap}
+  table.svc-t .d1{font-weight:bold;font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  table.svc-t .d2{color:#6b6878;font-size:11.5px;margin-top:3px}
+  .chip{font-size:8.5px;letter-spacing:.07em;font-weight:bold;padding:2px 7px;border-radius:5px;text-transform:uppercase}
+  .chip.cm{background:#ece7fa;color:#6f4fb3} .chip.cu{background:#f3e3ff;color:#a93ddb}
+  tr.grp td{background:linear-gradient(90deg,#efeafb,#f8f4ff);color:#5a3fa0;font-size:10.5px;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;padding:9px 16px !important;border-bottom:1px solid #e4e0f3}
   .doc-bottom{display:grid;grid-template-columns:1.25fr 1fr;gap:30px;margin-top:30px}
   .notes .ntitle{color:#6f4fb3;font-size:10.5px;font-weight:bold;letter-spacing:.14em;margin-bottom:10px}
   .notes ul{list-style:none;display:grid;gap:9px}
@@ -139,9 +143,12 @@
   .summary{background:#ece9f9;border-radius:16px;padding:8px 20px 0;align-self:start}
   .srow{display:flex;justify-content:space-between;padding:15px 0;color:#6c6880;font-size:13.5px}
   .srow.b{border-bottom:1px solid #dcd7ee}
-  .stotal{background:linear-gradient(100deg,#6f4fb3,#9b6fd6);margin:6px -20px 0;border-radius:16px;padding:16px 20px;display:flex;justify-content:space-between;color:#fff;font-weight:bold;font-size:17px;letter-spacing:.03em}
-  .stotal.alt{background:linear-gradient(100deg,#3a2a63,#6f4fb3);margin-top:8px}
-  .firstpay{margin:10px -20px -2px;padding:11px 20px;font-size:11.5px;color:#6f4fb3;text-align:right;font-weight:bold}
+  .stotal{background:linear-gradient(100deg,#6f4fb3,#9b6fd6);margin:6px -20px 0;border-radius:16px;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;color:#fff;font-weight:bold;font-size:17px;letter-spacing:.03em}
+  .stotal small{display:block;font-size:9px;font-weight:600;letter-spacing:.06em;opacity:.8;text-transform:uppercase;margin-bottom:2px}
+  .stotal.alt{background:linear-gradient(100deg,#1f1633,#5a3fa0);margin-top:14px}
+  .totlegend{margin:14px -20px -2px;padding:13px 20px 16px;font-size:10.5px;line-height:1.55;color:#6b6878;border-top:1px dashed #d8d2ee}
+  .totlegend b{color:#5a3fa0}
+  .firstpay{margin:10px 0 0;font-size:12px;color:#5a3fa0;text-align:right;font-weight:bold}
   .signs{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:60px}
   .sign{text-align:center;border-top:1.4px solid #555;padding-top:9px;color:#555;font-size:11.5px}
 </style>
@@ -465,22 +472,30 @@ function generateDoc(){
   $('#d_valid').textContent=fmtDate(addBusinessDays(base,15));
 
   const tb=$('#d_rows');tb.innerHTML='';
-  g.lines.forEach(l=>{
-    tb.insertAdjacentHTML('beforeend',`<tr><td><div class="d1">${l.name}.</div><div class="d2">${l.desc}. (${BILL[l.bill].label}.)</div></td>
-      <td class="c">${l.qty}</td><td class="r">${money2(l.price)}</td><td class="c">—</td><td class="r">${money2(l.total)}</td></tr>`);
-  });
-  g.recs.filter(r=>r.amt>0).forEach(r=>{
-    tb.insertAdjacentHTML('beforeend',`<tr><td><div class="d1">${r.n}.</div><div class="d2">Recargo estratégico (${r.pct}%).</div></td>
-      <td class="c">1</td><td class="r">${money2(r.amt)}</td><td class="c">—</td><td class="r">${money2(r.amt)}</td></tr>`);
-  });
+  const chip=b=>b==='unica'?'<span class="chip cu">Único</span>':'<span class="chip cm">Mensual</span>';
+  const mk=l=>`<tr><td><div class="d1">${l.name} ${chip(l.bill)}</div><div class="d2">${l.desc}.</div></td>
+      <td class="c">${l.qty}</td><td class="r">${money2(l.price)}</td><td class="c">—</td><td class="r">${money2(l.total)}</td></tr>`;
+  const grp=t=>`<tr class="grp"><td colspan="5">${t}</td></tr>`;
+  const once=g.lines.filter(l=>l.bill==='unica');
+  const recRows=g.recs.filter(r=>r.amt>0).map(r=>({name:r.n,desc:`Recargo estratégico (${r.pct}%)`,qty:1,price:r.amt,total:r.amt,bill:'mensual'}));
+  const month=g.lines.filter(l=>l.bill==='mensual').concat(recRows);
+  if(g.mixed){
+    tb.insertAdjacentHTML('beforeend',grp('Pago único · se cobra una sola vez al iniciar'));
+    once.forEach(l=>tb.insertAdjacentHTML('beforeend',mk(l)));
+    tb.insertAdjacentHTML('beforeend',grp('Servicios mensuales · se cobran cada mes'));
+    month.forEach(l=>tb.insertAdjacentHTML('beforeend',mk(l)));
+  }else{
+    g.lines.concat(recRows).forEach(l=>tb.insertAdjacentHTML('beforeend',mk(l)));
+  }
   $('#d_sub').textContent=money2(g.subtotal);
   $('#d_disc').textContent='- '+money2(g.discount);
 
   const tt=$('#d_totals');
   if(g.mixed){
-    tt.innerHTML=`<div class="stotal"><span>PAGO ÚNICO (1ª exhibición)</span><span>${money2(g.onceTotal)}</span></div>
-      <div class="stotal alt"><span>MENSUALIDAD</span><span>${money2(g.monthlyTotal)}</span></div>
-      <div class="firstpay">Primer pago (única vez + 1ª mensualidad): <b>${money2(g.onceTotal+g.monthlyTotal)}</b></div>`;
+    tt.innerHTML=`<div class="stotal"><span><small>Pago único · 1ª exhibición</small>INVERSIÓN INICIAL</span><span>${money2(g.onceTotal)}</span></div>
+      <div class="stotal alt"><span><small>Se cobra cada mes</small>MENSUALIDAD</span><span>${money2(g.monthlyTotal)}</span></div>
+      <div class="totlegend">Esta cotización tiene <b>dos cantidades</b> porque combina servicios de cobro distinto: la <b>inversión inicial</b> se paga una sola vez al arrancar el proyecto (desarrollo del sitio web), mientras que la <b>mensualidad</b> se cobra cada mes mientras el servicio esté activo (contenido, gestión y mantenimiento).
+        <div class="firstpay">Primer pago (inicial + 1ª mensualidad): ${money2(g.onceTotal+g.monthlyTotal)}</div></div>`;
   }else{
     const lbl=g.onceBase>0?'TOTAL':'TOTAL MENSUAL';
     tt.innerHTML=`<div class="stotal"><span>${lbl}</span><span>${money2(g.total)}</span></div>`;
