@@ -30,6 +30,8 @@
   label{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
   input,select{background:#070610;border:1px solid var(--line);color:#fff;border-radius:11px;padding:11px 13px;font-family:'Poppins';font-size:14px;width:100%;transition:.15s}
   input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(155,127,212,.18)}
+  input[readonly]{background:#050409;color:var(--accent-bright);cursor:not-allowed;border-style:dashed}
+  input[readonly]:focus{box-shadow:none;border-color:var(--line)}
   /* sin spinners feos del navegador */
   input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
   input[type=number]{-moz-appearance:textfield;appearance:textfield}
@@ -47,6 +49,7 @@
   .billtag{display:inline-block;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:6px;margin-top:5px;font-weight:600}
   .billtag.mensual{background:rgba(155,127,212,.16);color:var(--accent-bright)}
   .billtag.unica{background:rgba(199,125,255,.14);color:var(--accent-magenta)}
+  .spec-in{margin-top:8px;padding:8px 11px;font-size:12.5px;border-radius:9px;width:100%;max-width:320px}
   .svc input{padding:9px 10px;text-align:center}
   .svc .price-wrap{position:relative}
   .svc .price-wrap::before{content:attr(data-cur);position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;pointer-events:none}
@@ -136,7 +139,9 @@
   .summary{background:#ece9f9;border-radius:16px;padding:8px 20px 0;align-self:start}
   .srow{display:flex;justify-content:space-between;padding:15px 0;color:#6c6880;font-size:13.5px}
   .srow.b{border-bottom:1px solid #dcd7ee}
-  .stotal{background:linear-gradient(100deg,#6f4fb3,#9b6fd6);margin:6px -20px 0;border-radius:16px;padding:16px 20px;display:flex;justify-content:space-between;color:#fff;font-weight:bold;font-size:18px;letter-spacing:.04em}
+  .stotal{background:linear-gradient(100deg,#6f4fb3,#9b6fd6);margin:6px -20px 0;border-radius:16px;padding:16px 20px;display:flex;justify-content:space-between;color:#fff;font-weight:bold;font-size:17px;letter-spacing:.03em}
+  .stotal.alt{background:linear-gradient(100deg,#3a2a63,#6f4fb3);margin-top:8px}
+  .firstpay{margin:10px -20px -2px;padding:11px 20px;font-size:11.5px;color:#6f4fb3;text-align:right;font-weight:bold}
   .signs{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:60px}
   .sign{text-align:center;border-top:1.4px solid #555;padding-top:9px;color:#555;font-size:11.5px}
 </style>
@@ -218,10 +223,19 @@
       <div><label>Fecha de emisión</label><input type="date" id="f_date"></div>
       <div class="field-full" style="border-top:1px solid var(--line);padding-top:14px;margin-top:4px"><label>Cliente</label><input id="f_client" placeholder="Nombre de quien recibe"></div>
       <div class="field-full"><label>Empresa del cliente</label><input id="f_company" placeholder="Empresa (opcional)"></div>
-      <div class="field-full" style="border-top:1px solid var(--line);padding-top:14px;margin-top:4px"><label>Ejecutivo que genera</label><input id="f_exec" value="GUSTAVO EMILIO REYES MIRELES"></div>
-      <div><label>Puesto</label><input id="f_role" placeholder="Director Creativo"></div>
-      <div><label>Correo</label><input id="f_email" value="mrcontentoficial@gmail.com"></div>
-      <div class="field-full"><label>Teléfono</label><input id="f_phone" value="+52 462-600-30-84"></div>
+      <div class="field-full" style="border-top:1px solid var(--line);padding-top:14px;margin-top:4px"><label>Ejecutivo que genera 🔒</label><input id="f_exec" value="GUSTAVO EMILIO REYES MIRELES" readonly></div>
+      <div><label>Puesto 🔒</label><input id="f_role" value="Director General" readonly></div>
+      <div><label>Correo 🔒</label><input id="f_email" value="mrcontentoficial@gmail.com" readonly></div>
+      <div class="field-full"><label>Teléfono 🔒</label><input id="f_phone" value="+52 477 150 70 70" readonly></div>
+      <div class="field-full" style="border-top:1px solid var(--line);padding-top:14px;margin-top:4px">
+        <label>Firma del representante (opcional)</label>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <input type="file" id="f_sign" accept="image/*" style="flex:1;min-width:200px">
+          <img id="signPreview" style="height:46px;display:none;background:#fff;border-radius:8px;padding:4px">
+          <button class="btn ghost" style="width:auto;margin:0;padding:9px 14px;font-size:13px" onclick="clearSign()">Quitar</button>
+        </div>
+        <small style="color:var(--muted);font-size:11.5px">Suba una imagen de su firma (PNG con fondo transparente, ideal). Se guarda en este navegador, no necesita GitHub.</small>
+      </div>
     </div>
     <div style="background:#070610;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:18px;font-size:12.5px;color:var(--muted)">
       <b style="color:var(--accent-bright)">Vigencia:</b> esta cotización será válida <b style="color:#fff">15 días hábiles</b> después de su emisión.
@@ -285,12 +299,12 @@
         <div class="srow b"><span>Subtotal</span><span id="d_sub">$0.00</span></div>
         <div class="srow b"><span>Descuento</span><span id="d_disc">- $0.00</span></div>
         <div class="srow"><span>IVA (16%) (NO APLICA)</span><span>$0.00</span></div>
-        <div class="stotal"><span>TOTAL</span><span id="d_total">$0.00</span></div>
+        <div id="d_totals"></div>
       </div>
     </div>
     <div class="signs">
       <div class="sign">Firma y nombre del cliente</div>
-      <div class="sign">Firma del representante</div>
+      <div class="sign"><img id="d_sign_img" style="height:52px;display:none;margin:-58px auto 6px">Firma del representante</div>
     </div>
     <div class="dot bl"></div><div class="dot br"></div>
   </div>
@@ -312,6 +326,8 @@ const SERVICES=[
   {id:'webpro',name:'Sitio web interactivo premium',desc:'Multipágina con animaciones (tipo DML)',price:25000,qty:0,bill:'unica'},
   {id:'mantfija',name:'Mantenimiento sitio web estático',desc:'Actualizaciones y soporte del sitio one-page',price:1000,qty:0,bill:'mensual'},
   {id:'mantpro',name:'Mantenimiento sitio web premium',desc:'Soporte y mejoras del sitio interactivo',price:3000,qty:0,bill:'mensual'},
+  {id:'gestionrs',name:'Gestión de red social',desc:'Comunidad + publicación de contenido + reporte de métricas',price:1000,qty:0,bill:'mensual',specify:'¿Cuál red social? (Instagram, Facebook, TikTok…)'},
+  {id:'whatsauto',name:'Automatización por WhatsApp',desc:'Chatbot y respuestas automáticas (WhatsApp Business API)',price:3500,qty:0,bill:'mensual'},
 ];
 const BILL={mensual:{tag:'/mes',label:'Pago mensual'},unica:{tag:'pago único',label:'Pago único (una sola exhibición)'}};
 
@@ -323,7 +339,8 @@ function buildServices(){
   const c=$('#services');c.innerHTML='';
   SERVICES.forEach(s=>{
     const row=document.createElement('div');row.className='svc';
-    row.innerHTML=`<div><div class="name">${s.name}</div><div class="desc">${s.desc}</div><span class="billtag ${s.bill}">${BILL[s.bill].label}</span></div>
+    row.innerHTML=`<div><div class="name">${s.name}</div><div class="desc">${s.desc}</div><span class="billtag ${s.bill}">${BILL[s.bill].label}</span>
+        ${s.specify?`<input class="spec-in" type="text" data-spec="${s.id}" placeholder="${s.specify}">`:''}</div>
       <div class="price-wrap" data-cur="${$('#cur').value}"><input type="number" min="0" value="${s.price}" data-price="${s.id}"></div>
       <div class="stepper"><button type="button" data-step="-1">−</button><input type="number" min="0" value="${s.qty}" data-qty="${s.id}"><button type="button" data-step="1">+</button></div>`;
     c.appendChild(row);
@@ -336,11 +353,17 @@ function buildServices(){
 }
 
 function gather(){
-  let base=0,pieces=0;const lines=[];
+  let base=0,pieces=0,monthlyBase=0,onceBase=0;const lines=[];
   SERVICES.forEach(s=>{
     const price=+$(`[data-price="${s.id}"]`).value||0;
     const qty=+$(`[data-qty="${s.id}"]`).value||0;
-    if(qty>0){base+=price*qty;pieces+=qty;lines.push({name:s.name,desc:s.desc,qty,price,total:price*qty,bill:s.bill});}
+    if(qty>0){
+      const t=price*qty;base+=t;pieces+=qty;
+      if(s.bill==='unica')onceBase+=t;else monthlyBase+=t;
+      let desc=s.desc;const spec=s.specify?($(`[data-spec="${s.id}"]`)?.value||'').trim():'';
+      if(spec)desc+=' — '+spec;
+      lines.push({name:s.name,desc,qty,price,total:t,bill:s.bill,spec});
+    }
   });
   let surcharge=0,discount=0;const recs=[];
   document.querySelectorAll('[data-rec]').forEach(cb=>{
@@ -352,7 +375,13 @@ function gather(){
     }
   });
   const subtotal=base+surcharge,total=subtotal-discount;
-  return{base,pieces,lines,recs,surcharge,discount,subtotal,total};
+  // reparto proporcional de recargos/descuento entre mensual y único
+  const adj=surcharge-discount;
+  const mShare=base>0?monthlyBase/base:1, oShare=base>0?onceBase/base:0;
+  const monthlyTotal=monthlyBase+adj*mShare;
+  const onceTotal=onceBase+adj*oShare;
+  const mixed=monthlyBase>0&&onceBase>0;
+  return{base,pieces,lines,recs,surcharge,discount,subtotal,total,monthlyBase,onceBase,monthlyTotal,onceTotal,mixed};
 }
 
 function calc(){
@@ -362,6 +391,10 @@ function calc(){
   g.lines.forEach(l=>bd.insertAdjacentHTML('beforeend',`<div class="brow"><span>${l.qty}× ${l.name} <span style="color:var(--muted);font-size:11px">${BILL[l.bill].tag}</span></span><b>${money(l.total)}</b></div>`));
   if(g.lines.length)bd.insertAdjacentHTML('beforeend',`<div class="brow"><span>Subtotal</span><b>${money(g.base)}</b></div>`);
   g.recs.forEach(r=>bd.insertAdjacentHTML('beforeend',`<div class="brow minor"><span>${r.amt<0?'−':'+'} ${r.n} (${r.pct}%)</span><span>${money(Math.abs(r.amt))}</span></div>`));
+  if(g.mixed){
+    bd.insertAdjacentHTML('beforeend',`<div class="brow" style="border-bottom:none;color:var(--accent-magenta)"><span>Pago inicial (única vez)</span><b>${money(g.onceTotal)}</b></div>`);
+    bd.insertAdjacentHTML('beforeend',`<div class="brow" style="color:var(--accent-bright)"><span>Mensualidad recurrente</span><b>${money(g.monthlyTotal)}</b></div>`);
+  }
   $('#total').textContent=money(g.total);
   $('#perpiece').textContent=g.pieces?`${money(g.total/g.pieces)} por pieza · ${g.pieces} piezas`:'— arme su plan';
   const floor=+$('#floor').value||0,fm=$('#floormsg');
@@ -406,6 +439,17 @@ function updateValid(){
 }
 $('#f_date').addEventListener('change',updateValid);
 
+/* ---- firma del representante (persistente en el navegador) ---- */
+function loadSign(){const s=localStorage.getItem('mc_sign');const p=$('#signPreview');if(s){p.src=s;p.style.display='block';}else{p.style.display='none';}}
+$('#f_sign').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{localStorage.setItem('mc_sign',r.result);loadSign();}catch(err){alert('La imagen es muy pesada. Use un PNG más liviano.');}};
+  r.readAsDataURL(f);
+});
+function clearSign(){localStorage.removeItem('mc_sign');$('#f_sign').value='';loadSign();}
+loadSign();
+
 /* ---- generar documento ---- */
 function generateDoc(){
   const g=gather();
@@ -431,7 +475,20 @@ function generateDoc(){
   });
   $('#d_sub').textContent=money2(g.subtotal);
   $('#d_disc').textContent='- '+money2(g.discount);
-  $('#d_total').textContent=money2(g.total);
+
+  const tt=$('#d_totals');
+  if(g.mixed){
+    tt.innerHTML=`<div class="stotal"><span>PAGO ÚNICO (1ª exhibición)</span><span>${money2(g.onceTotal)}</span></div>
+      <div class="stotal alt"><span>MENSUALIDAD</span><span>${money2(g.monthlyTotal)}</span></div>
+      <div class="firstpay">Primer pago (única vez + 1ª mensualidad): <b>${money2(g.onceTotal+g.monthlyTotal)}</b></div>`;
+  }else{
+    const lbl=g.onceBase>0?'TOTAL':'TOTAL MENSUAL';
+    tt.innerHTML=`<div class="stotal"><span>${lbl}</span><span>${money2(g.total)}</span></div>`;
+  }
+
+  const sign=localStorage.getItem('mc_sign');
+  const si=$('#d_sign_img');
+  if(sign){si.src=sign;si.style.display='block';}else{si.style.display='none';}
   show('docView');
 }
 
