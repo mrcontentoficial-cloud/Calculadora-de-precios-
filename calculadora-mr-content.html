@@ -34,6 +34,9 @@
   .svc:last-child{border-bottom:none}
   .svc .name{font-weight:500;font-size:14px}
   .svc .desc{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .billtag{display:inline-block;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:6px;margin-top:5px;font-weight:600}
+  .billtag.mensual{background:rgba(155,127,212,.16);color:var(--accent-bright)}
+  .billtag.unica{background:rgba(199,125,255,.14);color:var(--accent-magenta)}
   .svc input{padding:9px 10px;text-align:center}
   .svc .price-wrap{position:relative}
   .svc .price-wrap::before{content:attr(data-cur);position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;pointer-events:none}
@@ -288,16 +291,19 @@ const LOGO="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAvgAAAH+CAIAAABm8e00AA
 document.getElementById('docLogo').src=LOGO;
 
 const SERVICES=[
-  {id:'reel',name:'Reel / video corto',desc:'Concepto + edición vertical',price:650,qty:0},
-  {id:'post',name:'Post estático',desc:'Diseño de una imagen',price:250,qty:0},
-  {id:'carrusel',name:'Carrusel',desc:'3 a 8 slides',price:350,qty:0},
-  {id:'historia',name:'Historia / Story',desc:'Pieza efímera 24h',price:50,qty:0},
-  {id:'video',name:'Video largo / YouTube',desc:'Edición +3 min',price:1000,qty:0},
-  {id:'foto',name:'Sesión fotográfica',desc:'Por sesión / lote de fotos',price:1800,qty:0},
-  {id:'copy',name:'Copywriting / guion',desc:'Texto por pieza',price:150,qty:0},
-  {id:'webfija',name:'Sitio web estático',desc:'Landing sencilla tipo one-page',price:8000,qty:0},
-  {id:'webpro',name:'Sitio web interactivo premium',desc:'Multipágina con animaciones (tipo DML)',price:25000,qty:0},
+  {id:'reel',name:'Reel / video corto',desc:'Concepto + edición vertical',price:650,qty:0,bill:'mensual'},
+  {id:'post',name:'Post estático',desc:'Diseño de una imagen',price:250,qty:0,bill:'mensual'},
+  {id:'carrusel',name:'Carrusel',desc:'3 a 8 slides',price:350,qty:0,bill:'mensual'},
+  {id:'historia',name:'Historia / Story',desc:'Pieza efímera 24h',price:50,qty:0,bill:'mensual'},
+  {id:'video',name:'Video largo / YouTube',desc:'Edición +3 min',price:1000,qty:0,bill:'mensual'},
+  {id:'foto',name:'Sesión fotográfica',desc:'Por sesión / lote de fotos',price:1800,qty:0,bill:'mensual'},
+  {id:'copy',name:'Copywriting / guion',desc:'Texto por pieza',price:150,qty:0,bill:'mensual'},
+  {id:'webfija',name:'Sitio web estático',desc:'Landing sencilla tipo one-page',price:8000,qty:0,bill:'unica'},
+  {id:'webpro',name:'Sitio web interactivo premium',desc:'Multipágina con animaciones (tipo DML)',price:25000,qty:0,bill:'unica'},
+  {id:'mantfija',name:'Mantenimiento sitio web estático',desc:'Actualizaciones y soporte del sitio one-page',price:1000,qty:0,bill:'mensual'},
+  {id:'mantpro',name:'Mantenimiento sitio web premium',desc:'Soporte y mejoras del sitio interactivo',price:3000,qty:0,bill:'mensual'},
 ];
+const BILL={mensual:{tag:'/mes',label:'Pago mensual'},unica:{tag:'pago único',label:'Pago único (una sola exhibición)'}};
 
 const $=s=>document.querySelector(s);
 const money=n=>$('#cur').value+Math.round(n).toLocaleString('es-MX');
@@ -307,7 +313,7 @@ function buildServices(){
   const c=$('#services');c.innerHTML='';
   SERVICES.forEach(s=>{
     const row=document.createElement('div');row.className='svc';
-    row.innerHTML=`<div><div class="name">${s.name}</div><div class="desc">${s.desc}</div></div>
+    row.innerHTML=`<div><div class="name">${s.name}</div><div class="desc">${s.desc}</div><span class="billtag ${s.bill}">${BILL[s.bill].label}</span></div>
       <div class="price-wrap" data-cur="${$('#cur').value}"><input type="number" min="0" value="${s.price}" data-price="${s.id}"></div>
       <input type="number" min="0" value="${s.qty}" data-qty="${s.id}">`;
     c.appendChild(row);
@@ -320,7 +326,7 @@ function gather(){
   SERVICES.forEach(s=>{
     const price=+$(`[data-price="${s.id}"]`).value||0;
     const qty=+$(`[data-qty="${s.id}"]`).value||0;
-    if(qty>0){base+=price*qty;pieces+=qty;lines.push({name:s.name,desc:s.desc,qty,price,total:price*qty});}
+    if(qty>0){base+=price*qty;pieces+=qty;lines.push({name:s.name,desc:s.desc,qty,price,total:price*qty,bill:s.bill});}
   });
   let surcharge=0,discount=0;const recs=[];
   document.querySelectorAll('[data-rec]').forEach(cb=>{
@@ -339,7 +345,7 @@ function calc(){
   const cur=$('#cur').value;document.querySelectorAll('.price-wrap').forEach(p=>p.dataset.cur=cur);
   const g=gather();
   const bd=$('#breakdown');bd.innerHTML='';
-  g.lines.forEach(l=>bd.insertAdjacentHTML('beforeend',`<div class="brow"><span>${l.qty}× ${l.name}</span><b>${money(l.total)}</b></div>`));
+  g.lines.forEach(l=>bd.insertAdjacentHTML('beforeend',`<div class="brow"><span>${l.qty}× ${l.name} <span style="color:var(--muted);font-size:11px">${BILL[l.bill].tag}</span></span><b>${money(l.total)}</b></div>`));
   if(g.lines.length)bd.insertAdjacentHTML('beforeend',`<div class="brow"><span>Subtotal</span><b>${money(g.base)}</b></div>`);
   g.recs.forEach(r=>bd.insertAdjacentHTML('beforeend',`<div class="brow minor"><span>${r.amt<0?'−':'+'} ${r.n} (${r.pct}%)</span><span>${money(Math.abs(r.amt))}</span></div>`));
   $('#total').textContent=money(g.total);
@@ -402,7 +408,7 @@ function generateDoc(){
 
   const tb=$('#d_rows');tb.innerHTML='';
   g.lines.forEach(l=>{
-    tb.insertAdjacentHTML('beforeend',`<tr><td><div class="d1">${l.name}.</div><div class="d2">${l.desc}.</div></td>
+    tb.insertAdjacentHTML('beforeend',`<tr><td><div class="d1">${l.name}.</div><div class="d2">${l.desc}. (${BILL[l.bill].label}.)</div></td>
       <td class="c">${l.qty}</td><td class="r">${money2(l.price)}</td><td class="c">—</td><td class="r">${money2(l.total)}</td></tr>`);
   });
   g.recs.filter(r=>r.amt>0).forEach(r=>{
