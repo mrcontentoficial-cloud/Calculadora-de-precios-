@@ -6,6 +6,7 @@
 <title>Calculadora de Tarifas · Mr Content</title>
 <link href="https://fonts.cdnfonts.com/css/coolvetica" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
   :root{
@@ -607,11 +608,23 @@ function generateDoc(){
 }
 
 function downloadPDF(){
-  // Usa la impresión nativa del navegador (Guardar como PDF / Compartir). Funciona offline en PC y celular.
-  const prev=document.title;
-  document.title='Cotizacion_'+($('#f_no').value||'MrContent');
-  window.print();
-  setTimeout(()=>{document.title=prev;},800);
+  const sheet=$('#sheet');
+  const name='Cotizacion_'+($('#f_no').value||'MrContent');
+  // Con internet: descarga directa del PDF. Sin internet: abre Guardar como PDF (impresión).
+  if(window.html2pdf){
+    const btn=event&&event.target; if(btn){btn.disabled=true;btn.textContent='Generando PDF…';}
+    html2pdf().set({margin:0,filename:name+'.pdf',image:{type:'jpeg',quality:.98},
+      html2canvas:{scale:2.5,useCORS:true,backgroundColor:'#ffffff',windowWidth:sheet.scrollWidth},
+      jsPDF:{unit:'px',format:[sheet.offsetWidth,sheet.offsetHeight],orientation:'portrait'}})
+      .from(sheet).save()
+      .then(()=>{if(btn){btn.disabled=false;btn.textContent='Descargar PDF';}})
+      .catch(()=>{if(btn){btn.disabled=false;btn.textContent='Descargar PDF';} fallbackPrint(name);});
+  }else{
+    fallbackPrint(name);
+  }
+}
+function fallbackPrint(name){
+  const prev=document.title;document.title=name;window.print();setTimeout(()=>{document.title=prev;},800);
 }
 
 buildServices();
