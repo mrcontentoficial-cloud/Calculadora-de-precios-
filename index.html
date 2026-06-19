@@ -59,10 +59,13 @@
   .billtag.mensual{background:rgba(155,127,212,.16);color:var(--accent-bright)}
   .billtag.unica{background:rgba(199,125,255,.14);color:var(--accent-magenta)}
   .spec-in{margin-top:8px;padding:8px 11px;font-size:12px;border-radius:9px;width:100%}
-  .svc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;gap:10px}
-  .price-edit{position:relative;flex:1;max-width:120px}
-  .price-edit::before{content:attr(data-cur);position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--accent-bright);font-size:13px;font-weight:600;pointer-events:none}
-  .price-edit input{padding:9px 8px 9px 24px;font-weight:700;font-size:14px;text-align:left;height:42px}
+  .svc-foot{display:flex;flex-direction:column;gap:8px;margin-top:auto}
+  .foot-row{display:flex;align-items:center;gap:10px}
+  .foot-lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);width:52px;flex:none}
+  .price-edit{position:relative;flex:1}
+  .price-edit::before{content:attr(data-cur);position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--accent-bright);font-size:14px;font-weight:700;pointer-events:none}
+  .price-edit input{width:100%;padding:9px 10px 9px 26px;font-weight:700;font-size:15px;text-align:left;height:42px}
+  .svc-foot .stepper{flex:1}
   .toggles{margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
   @media(max-width:620px){.toggles{grid-template-columns:1fr}}
   .tg{display:flex;align-items:center;justify-content:space-between;background:#070610;border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
@@ -401,8 +404,8 @@ function buildServices(){
           ${s.specify?`<input class="spec-in" type="text" data-spec="${s.id}" placeholder="${s.specify}">`:''}
         </div>
         <div class="svc-foot">
-          <div class="price-edit" data-cur="${cur}"><input type="number" min="0" step="50" value="${s.price}" data-price="${s.id}" title="Precio editable"></div>
-          <div class="stepper"><button type="button" data-step="-1">−</button><input type="number" min="0" value="${s.qty}" data-qty="${s.id}"><button type="button" data-step="1">+</button></div>
+          <div class="foot-row"><span class="foot-lbl">Precio</span><div class="price-edit" data-cur="${cur}"><input type="number" min="0" step="50" value="${s.price}" data-price="${s.id}" title="Precio editable"></div></div>
+          <div class="foot-row"><span class="foot-lbl">Cant.</span><div class="stepper"><button type="button" data-step="-1">−</button><input type="number" min="0" value="${s.qty}" data-qty="${s.id}"><button type="button" data-step="1">+</button></div></div>
         </div>`;
       grid.appendChild(row);
     });
