@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arma tu plan · Mr Content</title>
+<link href="https://fonts.cdnfonts.com/css/coolvetica" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#000000;--night-soft:#08070c;--night-card:#0e0c14;
+    --accent:#9b7fd4;--accent-bright:#b89dee;--accent-deep:#6f4fb3;--accent-magenta:#c77dff;
+    --line:#1c1a24;--muted:#8b8794;--ok:#3ddc97;--warn:#ff5c7a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Poppins',sans-serif;background:var(--night);color:#fff;min-height:100vh;padding:30px 18px 70px;
+    background-image:radial-gradient(900px 500px at 80% -10%, rgba(155,127,212,.18), transparent 60%),radial-gradient(700px 400px at -10% 20%, rgba(199,125,255,.10), transparent 55%);}
+  .wrap{max-width:1060px;margin:0 auto}
+  header{text-align:center;margin-bottom:34px}
+  header img{height:54px;margin-bottom:14px}
+  .kicker{font-family:'Bebas Neue';letter-spacing:.35em;color:var(--accent-bright);font-size:13px;margin-bottom:6px}
+  h1{font-family:'Coolvetica','Bebas Neue',sans-serif;font-size:clamp(34px,6vw,58px);line-height:.95;font-weight:400}
+  h1 .grad{background:linear-gradient(100deg,#fff,var(--accent-bright) 45%,var(--accent-magenta));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{color:var(--muted);margin-top:12px;font-size:15px;max-width:560px;margin-inline:auto}
+  h2.sec{font-family:'Bebas Neue';letter-spacing:.06em;font-size:26px;font-weight:400;margin:36px 0 6px}
+  .secsub{color:var(--muted);font-size:13px;margin-bottom:18px}
+  /* PLANES */
+  .plans{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:880px){.plans{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.plans{grid-template-columns:1fr}}
+  .plan{background:var(--night-card);border:1px solid var(--line);border-radius:18px;padding:20px 18px;cursor:pointer;transition:.15s;position:relative;display:flex;flex-direction:column}
+  .plan:hover{border-color:var(--accent-deep);transform:translateY(-3px)}
+  .plan.sel{border-color:var(--accent);box-shadow:0 0 0 3px rgba(155,127,212,.25)}
+  .plan.hot{border-color:var(--accent-magenta)}
+  .plan .badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--accent-magenta);color:#fff;font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:999px}
+  .plan .pn{font-family:'Bebas Neue';font-size:23px;letter-spacing:.03em;color:#fff}
+  .plan .pt{color:var(--muted);font-size:11.5px;line-height:1.4;margin:4px 0 12px;min-height:32px}
+  .plan ul{list-style:none;font-size:11.5px;color:#cfcad9;display:grid;gap:5px;margin-bottom:14px}
+  .plan ul li::before{content:'✓';color:var(--accent-bright);margin-right:7px;font-weight:700}
+  .plan .pick{margin-top:auto;text-align:center;font-family:'Bebas Neue';letter-spacing:.06em;font-size:15px;padding:9px;border-radius:10px;background:#070610;border:1px solid var(--line);color:var(--accent-bright)}
+  .plan.sel .pick{background:var(--accent);color:#000;border-color:var(--accent)}
+  /* BUILDER */
+  .card{background:var(--night-card);border:1px solid var(--line);border-radius:20px;padding:24px}
+  .layout{display:grid;grid-template-columns:1.6fr 1fr;gap:22px;align-items:start}
+  @media(max-width:880px){.layout{grid-template-columns:1fr}}
+  .sec-t{font-family:'Bebas Neue';letter-spacing:.08em;font-size:18px;color:var(--accent-bright);margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .sec-t:first-child{margin-top:0}
+  .svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  @media(max-width:560px){.svc-grid{grid-template-columns:1fr}}
+  .svc{background:#070610;border:1px solid var(--line);border-radius:13px;padding:12px 13px;display:flex;flex-direction:column;gap:9px}
+  .svc .name{font-weight:600;font-size:13px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .svc .desc{font-size:10.5px;color:var(--muted);line-height:1.35}
+  .billtag{font-size:8px;letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:4px;font-weight:700}
+  .billtag.mensual{background:rgba(155,127,212,.16);color:var(--accent-bright)}
+  .billtag.unica{background:rgba(199,125,255,.14);color:var(--accent-magenta)}
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto}
+  .price{font-weight:700;font-size:14px;white-space:nowrap}
+  .spec-in{padding:7px 10px;font-size:11.5px;border-radius:8px;width:100%;background:#050409;border:1px solid var(--line);color:#fff}
+  .stepper{display:flex;align-items:center;background:#050409;border:1px solid var(--line);border-radius:10px;overflow:hidden;height:38px}
+  .stepper button{width:30px;height:100%;border:none;background:transparent;color:var(--accent-bright);font-size:18px;cursor:pointer}
+  .stepper button:hover{background:rgba(155,127,212,.18);color:#fff}
+  .stepper input{width:44px;border:none;background:transparent;color:#fff;text-align:center;font-weight:600;font-family:'Poppins';font-size:13px}
+  input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+  input[type=number]{-moz-appearance:textfield}
+  /* RESUMEN */
+  .summary{position:sticky;top:20px}
+  .tot-box{border-radius:16px;padding:16px 18px;color:#fff;margin-bottom:12px}
+  .tot-box.once{background:linear-gradient(120deg,#6f4fb3,#9b6fd6)}
+  .tot-box.month{background:linear-gradient(120deg,#241a3d,#5a3fa0)}
+  .tot-box .tt{font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;opacity:.9}
+  .tot-box .am{font-size:27px;font-weight:700;margin:3px 0}
+  .tot-box .am .mes{font-size:13px;opacity:.8}
+  .tot-box .br{display:flex;justify-content:space-between;font-size:11px;padding:5px 0;border-top:1px solid rgba(255,255,255,.18)}
+  .empty-note{color:var(--muted);font-size:13px;font-style:italic;text-align:center;padding:18px 0}
+  .policy{background:#070610;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:11.5px;color:var(--muted);margin-bottom:14px;line-height:1.5}
+  .policy b{color:var(--accent-bright)}
+  /* FORM */
+  label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px}
+  label .req{color:var(--accent-magenta)}
+  input[type=text],input[type=email],input[type=tel],textarea{width:100%;background:#070610;border:1px solid var(--line);color:#fff;border-radius:11px;padding:11px 13px;font-family:'Poppins';font-size:14px}
+  input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(155,127,212,.18)}
+  textarea{min-height:88px;resize:vertical}
+  .btn{display:block;width:100%;border:none;border-radius:12px;padding:14px;font-family:'Bebas Neue';letter-spacing:.08em;font-size:18px;cursor:pointer;transition:.15s;margin-top:18px}
+  .btn.send{background:linear-gradient(100deg,var(--accent-deep),var(--accent-magenta));color:#fff}
+  .btn.send:hover{filter:brightness(1.12)}
+  .btn:disabled{opacity:.6;cursor:default}
+  .err-msg{color:var(--warn);font-size:12.5px;margin-top:10px;display:none}
+  .err-msg.show{display:block}
+  /* SUCCESS */
+  .success{display:none;text-align:center;padding:40px 24px}
+  .success.show{display:block}
+  .success .ico{font-size:54px}
+  .success h3{font-family:'Coolvetica','Bebas Neue';font-size:34px;font-weight:400;margin:10px 0;background:linear-gradient(100deg,#fff,var(--accent-bright),var(--accent-magenta));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .success p{color:var(--muted);font-size:14px;max-width:440px;margin:0 auto 8px}
+  footer{text-align:center;color:var(--muted);font-size:11.5px;margin-top:50px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="mister-content-logo.png" alt="Mister Content" onerror="this.style.display='none'">
+    <div class="kicker">MR CONTENT · AGENCIA CREATIVA</div>
+    <h1>Arma <span class="grad">tu plan</span></h1>
+    <p class="sub">Elige un plan o personalízalo a tu medida. Cuéntanos qué necesitas y te preparamos una propuesta.</p>
+  </header>
+
+  <!-- PLANES -->
+  <h2 class="sec">1. Elige un punto de partida</h2>
+  <p class="secsub">Toca un plan para cargarlo. Después puedes ajustar todo lo que quieras abajo.</p>
+  <div class="plans" id="plans"></div>
+
+  <!-- BUILDER + RESUMEN -->
+  <h2 class="sec">2. Personaliza tu plan</h2>
+  <p class="secsub">Suma o quita lo que necesites. El total se actualiza solo.</p>
+  <div class="layout">
+    <div class="card" id="builder"></div>
+    <div class="summary">
+      <div class="card">
+        <div id="totals"><div class="empty-note">Elige servicios para ver tu estimado.</div></div>
+        <div class="policy" style="margin-top:14px">
+          <b>Validez:</b> esta cotización tiene una vigencia de <b>15 días naturales</b> a partir de su emisión. Los precios no incluyen IVA salvo que se indique. Se requiere anticipo del 50% para iniciar.
+        </div>
+
+        <div id="formBox">
+          <h2 class="sec" style="margin-top:6px;font-size:20px">3. Tus datos</h2>
+          <label>Nombre <span class="req">*</span></label>
+          <input type="text" id="f_nombre" placeholder="Tu nombre">
+          <label>Empresa o negocio (opcional)</label>
+          <input type="text" id="f_empresa" placeholder="Nombre de tu marca">
+          <label>Teléfono <span class="req">*</span></label>
+          <input type="tel" id="f_tel" placeholder="Tu WhatsApp / teléfono">
+          <label>Correo <span class="req">*</span></label>
+          <input type="email" id="f_correo" placeholder="tucorreo@ejemplo.com">
+          <label>¿Cuál es tu objetivo? <span class="req">*</span></label>
+          <textarea id="f_obj" placeholder="Cuéntanos qué quieres lograr: más ventas, crecer en redes, lanzar tu marca, tener un sitio web…"></textarea>
+          <button class="btn send" id="sendBtn" onclick="enviar()">Solicitar mi cotización →</button>
+          <div class="err-msg" id="formErr"></div>
+        </div>
+
+        <div class="success" id="success">
+          <div class="ico">✅</div>
+          <h3>¡Solicitud enviada!</h3>
+          <p>Gracias, <b id="okName">crack</b>. Recibimos tu solicitud y te contactaremos muy pronto con tu propuesta.</p>
+          <p style="font-size:12px">Mr Content · Agencia Creativa</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Mr Content · Agencia Creativa — propuesta sin compromiso, válida 15 días naturales.</footer>
+</div>
+
+<script>
+const MAIL='mrcontentoficial@gmail.com';
+const SERVICES=[
+  {id:'identidad',name:'Identidad de marca',desc:'Logo, presentación y mood board',price:2000,bill:'unica',cat:'marca'},
+  {id:'carrusel',name:'Carrusel',desc:'3 a 8 slides',price:350,bill:'mensual',cat:'contenido'},
+  {id:'copy',name:'Copywriting / guion',desc:'Texto por pieza',price:150,bill:'mensual',cat:'contenido'},
+  {id:'historia',name:'Historia / Story',desc:'Pieza efímera 24h',price:50,bill:'mensual',cat:'contenido'},
+  {id:'post',name:'Post estático',desc:'Diseño de una imagen',price:250,bill:'mensual',cat:'contenido'},
+  {id:'reel',name:'Reel / video corto',desc:'Concepto + edición vertical',price:500,bill:'mensual',cat:'contenido'},
+  {id:'foto',name:'Sesión fotográfica',desc:'Por sesión / lote de fotos',price:1800,bill:'mensual',cat:'contenido'},
+  {id:'video',name:'Video largo / YouTube',desc:'Edición +3 min',price:1000,bill:'mensual',cat:'contenido'},
+  {id:'gestionrs',name:'Gestión de red social',desc:'Comunidad + publicación + métricas (por red)',price:1000,bill:'mensual',cat:'redes',specify:'¿Cuál red social?'},
+  {id:'whatsauto',name:'Automatización por WhatsApp',desc:'Chatbot y respuestas automáticas',price:3500,bill:'mensual',cat:'redes'},
+  {id:'webfija',name:'Sitio web estático',desc:'Landing sencilla one-page',price:8000,bill:'unica',cat:'web'},
+  {id:'webpro',name:'Sitio web interactivo premium',desc:'Multipágina con animaciones',price:25000,bill:'unica',cat:'web'},
+  {id:'mantfija',name:'Mantenimiento sitio estático',desc:'Soporte y actualizaciones',price:1000,bill:'mensual',cat:'web'},
+  {id:'mantpro',name:'Mantenimiento sitio premium',desc:'Soporte y mejoras del sitio',price:3000,bill:'mensual',cat:'web'},
+];
+const CATS=[{key:'marca',label:'Identidad de marca'},{key:'contenido',label:'Contenido'},{key:'redes',label:'Redes sociales'},{key:'web',label:'Sitios web'}];
+const BILL={mensual:{tag:'/mes'},unica:{tag:'pago único'}};
+const PRESETS=[
+  {id:'esencial',name:'Esencial',tag:'Para empezar con presencia sólida',items:{post:8,reel:2,historia:4,gestionrs:1}},
+  {id:'profesional',name:'Profesional',hot:true,tag:'El equilibrio ideal (recomendado)',items:{post:12,reel:4,carrusel:4,historia:8,copy:4,gestionrs:1}},
+  {id:'autoridad',name:'Autoridad',tag:'Posicionamiento serio en redes',items:{post:12,reel:6,carrusel:6,historia:12,copy:4,foto:1,gestionrs:2}},
+  {id:'full',name:'Full',tag:'Marca + sitio web premium + contenido',items:{identidad:1,webpro:1,mantpro:1,post:12,reel:4,carrusel:4,gestionrs:1}},
+];
+
+const $=s=>document.querySelector(s);
+const qty={};SERVICES.forEach(s=>qty[s.id]=0);
+const money=n=>'$'+Math.round(n).toLocaleString('es-MX');
+const SVC=id=>SERVICES.find(s=>s.id===id);
+
+function shortName(s){return s.name.replace(/ \/.*$/,'').trim();}
+
+function renderPlans(){
+  const c=$('#plans');c.innerHTML='';
+  PRESETS.forEach(p=>{
+    const incl=Object.entries(p.items).map(([id,q])=>`<li>${q}× ${shortName(SVC(id))}</li>`).join('');
+    const el=document.createElement('div');el.className='plan'+(p.hot?' hot':'');el.dataset.id=p.id;
+    el.innerHTML=`${p.hot?'<div class="badge">Recomendado</div>':''}
+      <div class="pn">Plan ${p.name}</div><div class="pt">${p.tag}</div>
+      <ul>${incl}</ul><div class="pick">Elegir este</div>`;
+    el.onclick=()=>applyPreset(p.id);
+    c.appendChild(el);
+  });
+}
+function applyPreset(id){
+  const p=PRESETS.find(x=>x.id===id);
+  SERVICES.forEach(s=>qty[s.id]=0);
+  Object.entries(p.items).forEach(([k,v])=>qty[k]=v);
+  document.querySelectorAll('.plan').forEach(el=>el.classList.toggle('sel',el.dataset.id===id));
+  buildBuilder();calc();
+  document.querySelector('h2.sec:nth-of-type(2)')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function buildBuilder(){
+  const b=$('#builder');b.innerHTML='';
+  CATS.forEach(cat=>{
+    const items=SERVICES.filter(s=>s.cat===cat.key).sort((a,b)=>a.name.localeCompare(b.name,'es'));
+    const t=document.createElement('div');t.className='sec-t';t.textContent=cat.label;b.appendChild(t);
+    const grid=document.createElement('div');grid.className='svc-grid';
+    items.forEach(s=>{
+      const d=document.createElement('div');d.className='svc';
+      d.innerHTML=`<div class="name">${shortName(s)} <span class="billtag ${s.bill}">${BILL[s.bill].tag}</span></div>
+        <div class="desc">${s.desc}</div>
+        ${s.specify?`<input class="spec-in" type="text" data-spec="${s.id}" placeholder="${s.specify}">`:''}
+        <div class="foot"><span class="price">${money(s.price)}</span>
+          <div class="stepper"><button type="button">−</button><input type="number" min="0" value="${qty[s.id]}" data-q="${s.id}"><button type="button">+</button></div></div>`;
+      const inp=d.querySelector('[data-q]');
+      inp.addEventListener('input',()=>{qty[s.id]=Math.max(0,+inp.value||0);calc();});
+      const [minus,plus]=d.querySelectorAll('.stepper button');
+      minus.onclick=()=>{qty[s.id]=Math.max(0,qty[s.id]-1);inp.value=qty[s.id];calc();};
+      plus.onclick=()=>{qty[s.id]=qty[s.id]+1;inp.value=qty[s.id];calc();};
+      grid.appendChild(d);
+    });
+    b.appendChild(grid);
+  });
+}
+
+function gather(){
+  let once=0,month=0;const lines=[];
+  SERVICES.forEach(s=>{
+    const q=qty[s.id]||0;if(q<=0)return;
+    const t=s.price*q;if(s.bill==='unica')once+=t;else month+=t;
+    let name=shortName(s);const sp=s.specify?($(`[data-spec="${s.id}"]`)?.value||'').trim():'';
+    if(sp)name+=' ('+sp+')';
+    lines.push({name,q,total:t,bill:s.bill});
+  });
+  return{once,month,lines,total:once+month};
+}
+
+function calc(){
+  const g=gather();const tt=$('#totals');
+  if(g.total<=0){tt.innerHTML='<div class="empty-note">Elige servicios para ver tu estimado.</div>';return;}
+  let html='';
+  if(g.once>0&&g.month>0){
+    html=`<div class="tot-box once"><div class="tt">Para arrancar pagas (hoy)</div><div class="am">${money(g.once+g.month)}</div>
+        <div class="br"><span>Pago único (una vez)</span><b>${money(g.once)}</b></div>
+        <div class="br"><span>+ 1ª mensualidad</span><b>${money(g.month)}</b></div></div>
+      <div class="tot-box month"><div class="tt">Después, cada mes</div><div class="am">${money(g.month)}<span class="mes"> /mes</span></div></div>`;
+  }else if(g.once>0){
+    html=`<div class="tot-box once"><div class="tt">Pago único</div><div class="am">${money(g.once)}</div></div>`;
+  }else{
+    html=`<div class="tot-box month"><div class="tt">Pago mensual</div><div class="am">${money(g.month)}<span class="mes"> /mes</span></div></div>`;
+  }
+  tt.innerHTML=html;
+}
+
+function validez(){const d=new Date();d.setDate(d.getDate()+15);const p=x=>String(x).padStart(2,'0');return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()}`;}
+function hoy(){const d=new Date();const p=x=>String(x).padStart(2,'0');return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()}`;}
+
+function enviar(){
+  const err=$('#formErr');
+  const nombre=$('#f_nombre').value.trim(),empresa=$('#f_empresa').value.trim(),tel=$('#f_tel').value.trim(),correo=$('#f_correo').value.trim(),obj=$('#f_obj').value.trim();
+  const g=gather();
+  if(g.total<=0){err.textContent='Elige al menos un servicio o un plan antes de enviar.';err.classList.add('show');return;}
+  if(!nombre||!tel||!correo||!obj){err.textContent='Completa nombre, teléfono, correo y tu objetivo.';err.classList.add('show');return;}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo)){err.textContent='Revisa tu correo, parece incompleto.';err.classList.add('show');return;}
+  err.classList.remove('show');
+
+  const resumen=g.lines.map(l=>`• ${l.q}× ${l.name} (${l.bill==='unica'?'único':'mensual'}) = ${money(l.total)}`).join('\n');
+  const planSel=document.querySelector('.plan.sel');
+  const payload={
+    _subject:'🟣 Nueva solicitud de cotización — '+nombre+(empresa?(' / '+empresa):''),
+    _template:'table',_captcha:'false',
+    Nombre:nombre,Empresa:empresa||'—',Telefono:tel,Correo:correo,
+    'Plan base':planSel?planSel.querySelector('.pn').textContent:'A medida',
+    'Servicios elegidos':resumen,
+    'Pago unico':money(g.once),'Pago mensual':money(g.month),'Primer pago (unico + 1a mensualidad)':money(g.total),
+    'Objetivo del cliente':obj,
+    'Fecha':hoy(),'Valido hasta (15 dias naturales)':validez()
+  };
+  const btn=$('#sendBtn');btn.disabled=true;btn.textContent='Enviando…';
+
+  fetch('https://formsubmit.co/ajax/'+MAIL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)})
+    .then(r=>r.json()).then(()=>showOk(nombre))
+    .catch(()=>{ // respaldo: abrir correo prellenado
+      const body=encodeURIComponent(`Nombre: ${nombre}\nEmpresa: ${empresa||'—'}\nTeléfono: ${tel}\nCorreo: ${correo}\n\nServicios:\n${resumen}\n\nPago único: ${money(g.once)}\nMensual: ${money(g.month)}\nPrimer pago: ${money(g.total)}\n\nObjetivo:\n${obj}\n\nFecha: ${hoy()} · Válido hasta: ${validez()}`);
+      window.location.href=`mailto:${MAIL}?subject=${encodeURIComponent('Solicitud de cotización — '+nombre)}&body=${body}`;
+      showOk(nombre);
+    });
+}
+function showOk(nombre){$('#okName').textContent=nombre;$('#formBox').style.display='none';$('#success').classList.add('show');}
+
+renderPlans();buildBuilder();calc();
+</script>
+</body>
+</html>
