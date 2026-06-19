@@ -45,8 +45,12 @@
   .stepper button:active{transform:scale(.9)}
   .stepper input{border:none;box-shadow:none;background:transparent;text-align:center;padding:0;width:100%;font-weight:600;border-radius:0}
   .stepper input:focus{box-shadow:none;border:none}
-  #services{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  @media(max-width:620px){#services{grid-template-columns:1fr}}
+  #services{display:block}
+  .svc-section{margin-bottom:8px}
+  .svc-sec-title{font-family:'Bebas Neue',sans-serif;letter-spacing:.08em;font-size:19px;color:var(--accent-bright);margin:20px 0 11px;padding-bottom:6px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:9px}
+  .svc-sec-title .cnt{font-family:'Poppins';font-size:11px;letter-spacing:0;color:var(--muted);font-weight:400}
+  .svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:620px){.svc-grid{grid-template-columns:1fr}}
   .svc{background:#070610;border:1px solid var(--line);border-radius:14px;padding:13px 14px;display:flex;flex-direction:column;gap:10px;transition:.15s}
   .svc:hover{border-color:var(--accent-deep)}
   .svc .name{font-weight:600;font-size:13.5px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;line-height:1.25}
@@ -56,8 +60,9 @@
   .billtag.unica{background:rgba(199,125,255,.14);color:var(--accent-magenta)}
   .spec-in{margin-top:8px;padding:8px 11px;font-size:12px;border-radius:9px;width:100%}
   .svc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;gap:10px}
-  .price-fixed{font-weight:700;font-size:15px;color:#fff;white-space:nowrap}
-  .price-fixed span{font-size:10px;color:var(--muted);font-weight:400;letter-spacing:.04em}
+  .price-edit{position:relative;flex:1;max-width:120px}
+  .price-edit::before{content:attr(data-cur);position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--accent-bright);font-size:13px;font-weight:600;pointer-events:none}
+  .price-edit input{padding:9px 8px 9px 24px;font-weight:700;font-size:14px;text-align:left;height:42px}
   .toggles{margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
   @media(max-width:620px){.toggles{grid-template-columns:1fr}}
   .tg{display:flex;align-items:center;justify-content:space-between;background:#070610;border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
@@ -153,6 +158,16 @@
   .totlegend{margin:14px -20px -2px;padding:13px 20px 16px;font-size:10.5px;line-height:1.55;color:#6b6878;border-top:1px dashed #d8d2ee}
   .totlegend b{color:#5a3fa0}
   .firstpay{margin:10px 0 0;font-size:12px;color:#5a3fa0;text-align:right;font-weight:bold}
+  .splitwrap{margin:10px -20px 0;padding:0 4px}
+  .splitbox{border-radius:14px;padding:14px 16px;margin:10px 0;color:#fff}
+  .splitbox.once{background:linear-gradient(120deg,#6f4fb3,#9b6fd6)}
+  .splitbox.month{background:linear-gradient(120deg,#241a3d,#5a3fa0)}
+  .sb-tag{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:bold;opacity:.9}
+  .sb-amt{font-size:25px;font-weight:bold;margin:2px 0 5px;letter-spacing:.02em}
+  .sb-desc{font-size:10px;line-height:1.45;opacity:.92}
+  .splitplus{text-align:center;color:#6f4fb3;font-weight:bold;font-size:16px;margin:-4px 0}
+  .splitfirst{background:#ece9f9;border:1px dashed #b9addf;border-radius:12px;padding:11px 14px;margin-top:10px;font-size:11px;color:#5a3fa0;text-align:center}
+  .splitfirst b{font-size:14px}
   .signs{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:60px}
   .sign{text-align:center;border-top:1.4px solid #555;padding-top:9px;color:#555;font-size:11.5px}
   /* ===== IMPRESIÓN / GUARDAR COMO PDF ===== */
@@ -181,7 +196,7 @@
   <div class="grid">
     <div class="card">
       <h2>Servicios del plan</h2>
-      <p class="hint">Ajuste la cantidad de cada servicio. Los precios son fijos.</p>
+      <p class="hint">Ajuste el precio y la cantidad de cada servicio. Tus cambios de precio se guardan automáticamente.</p>
       <div id="services"></div>
 
       <div class="toggles">
@@ -258,6 +273,12 @@
         </div>
         <small style="color:var(--muted);font-size:11.5px">Suba una imagen de su firma (PNG con fondo transparente, ideal). Se guarda en este navegador, no necesita GitHub.</small>
       </div>
+      <div class="field-full" style="border-top:1px solid var(--line);padding-top:14px;margin-top:4px">
+        <div class="tg" style="cursor:default" onclick="event.stopPropagation()">
+          <div class="l">Aplicar IVA (16%)<small>Actívalo solo si la cotización lleva IVA. Apagado = precios sin IVA.</small></div>
+          <div class="r"><input type="checkbox" id="f_iva"></div>
+        </div>
+      </div>
     </div>
     <div style="background:#070610;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:18px;font-size:12.5px;color:var(--muted)">
       <b style="color:var(--accent-bright)">Vigencia:</b> esta cotización será válida <b style="color:#fff">15 días hábiles</b> después de su emisión.
@@ -320,7 +341,7 @@
       <div class="summary">
         <div class="srow b"><span>Subtotal</span><span id="d_sub">$0.00</span></div>
         <div class="srow b"><span>Descuento</span><span id="d_disc">- $0.00</span></div>
-        <div class="srow"><span>IVA (16%) (NO APLICA)</span><span>$0.00</span></div>
+        <div class="srow"><span id="d_ivalbl">IVA (16%) (NO APLICA)</span><span id="d_iva">$0.00</span></div>
         <div id="d_totals"></div>
       </div>
     </div>
@@ -337,43 +358,58 @@ const LOGO="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAvgAAAH+CAIAAABm8e00AA
 document.getElementById('docLogo').src=LOGO;
 
 const SERVICES=[
-  {id:'whatsauto',name:'Automatización por WhatsApp',desc:'Chatbot y respuestas automáticas (WhatsApp Business API)',price:3500,qty:0,bill:'mensual'},
-  {id:'carrusel',name:'Carrusel',desc:'3 a 8 slides',price:350,qty:0,bill:'mensual'},
-  {id:'copy',name:'Copywriting / guion',desc:'Texto por pieza',price:150,qty:0,bill:'mensual'},
-  {id:'gestionrs',name:'Gestión de red social',desc:'Comunidad + publicación de contenido + reporte de métricas',price:1000,qty:0,bill:'mensual',specify:'¿Cuál red social? (Instagram, Facebook, TikTok…)'},
-  {id:'historia',name:'Historia / Story',desc:'Pieza efímera 24h',price:50,qty:0,bill:'mensual'},
-  {id:'identidad',name:'Identidad de marca',desc:'Presentación y mood board',price:2000,qty:0,bill:'unica'},
-  {id:'mantfija',name:'Mantenimiento sitio web estático',desc:'Actualizaciones y soporte del sitio one-page',price:1000,qty:0,bill:'mensual'},
-  {id:'mantpro',name:'Mantenimiento sitio web premium',desc:'Soporte y mejoras del sitio interactivo',price:3000,qty:0,bill:'mensual'},
-  {id:'post',name:'Post estático',desc:'Diseño de una imagen',price:250,qty:0,bill:'mensual'},
-  {id:'reel',name:'Reel / video corto',desc:'Concepto + edición vertical',price:650,qty:0,bill:'mensual'},
-  {id:'foto',name:'Sesión fotográfica',desc:'Por sesión / lote de fotos',price:1800,qty:0,bill:'mensual'},
-  {id:'webfija',name:'Sitio web estático',desc:'Landing sencilla tipo one-page',price:8000,qty:0,bill:'unica'},
-  {id:'webpro',name:'Sitio web interactivo premium',desc:'Multipágina con animaciones (tipo DML)',price:25000,qty:0,bill:'unica'},
-  {id:'video',name:'Video largo / YouTube',desc:'Edición +3 min',price:1000,qty:0,bill:'mensual'},
+  {id:'identidad',name:'Identidad de marca',desc:'Presentación y mood board',price:2000,qty:0,bill:'unica',cat:'marca'},
+  {id:'carrusel',name:'Carrusel',desc:'3 a 8 slides',price:350,qty:0,bill:'mensual',cat:'contenido'},
+  {id:'copy',name:'Copywriting / guion',desc:'Texto por pieza',price:150,qty:0,bill:'mensual',cat:'contenido'},
+  {id:'historia',name:'Historia / Story',desc:'Pieza efímera 24h',price:50,qty:0,bill:'mensual',cat:'contenido'},
+  {id:'post',name:'Post estático',desc:'Diseño de una imagen',price:250,qty:0,bill:'mensual',cat:'contenido'},
+  {id:'reel',name:'Reel / video corto',desc:'Concepto + edición vertical',price:650,qty:0,bill:'mensual',cat:'contenido'},
+  {id:'foto',name:'Sesión fotográfica',desc:'Por sesión / lote de fotos',price:1800,qty:0,bill:'mensual',cat:'contenido'},
+  {id:'video',name:'Video largo / YouTube',desc:'Edición +3 min',price:1000,qty:0,bill:'mensual',cat:'contenido'},
+  {id:'whatsauto',name:'Automatización por WhatsApp',desc:'Chatbot y respuestas automáticas (WhatsApp Business API)',price:3500,qty:0,bill:'mensual',cat:'redes'},
+  {id:'gestionrs',name:'Gestión de red social',desc:'Comunidad + publicación de contenido + reporte de métricas',price:1000,qty:0,bill:'mensual',cat:'redes',specify:'¿Cuál red social? (Instagram, Facebook, TikTok…)'},
+  {id:'webfija',name:'Sitio web estático',desc:'Landing sencilla tipo one-page',price:8000,qty:0,bill:'unica',cat:'web'},
+  {id:'webpro',name:'Sitio web interactivo premium',desc:'Multipágina con animaciones (tipo DML)',price:25000,qty:0,bill:'unica',cat:'web'},
+  {id:'mantfija',name:'Mantenimiento sitio web estático',desc:'Actualizaciones y soporte del sitio one-page',price:1000,qty:0,bill:'mensual',cat:'web'},
+  {id:'mantpro',name:'Mantenimiento sitio web premium',desc:'Soporte y mejoras del sitio interactivo',price:3000,qty:0,bill:'mensual',cat:'web'},
 ];
+const CATS=[{key:'marca',label:'Identidad de marca'},{key:'contenido',label:'Contenido'},{key:'redes',label:'Redes sociales'},{key:'web',label:'Sitios web'}];
 const BILL={mensual:{tag:'/mes',label:'Pago mensual'},unica:{tag:'pago único',label:'Pago único (una sola exhibición)'}};
 
 const $=s=>document.querySelector(s);
 const money=n=>$('#cur').value+Math.round(n).toLocaleString('es-MX');
 const money2=n=>'$'+Number(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
 
+const PRICES=JSON.parse(localStorage.getItem('mc_prices')||'{}');
+SERVICES.forEach(s=>{if(PRICES[s.id]!=null)s.price=+PRICES[s.id];});
+function savePrice(id,val){const s=SERVICES.find(x=>x.id===id);s.price=+val||0;PRICES[id]=s.price;localStorage.setItem('mc_prices',JSON.stringify(PRICES));calc();}
+
 function buildServices(){
   const c=$('#services');c.innerHTML='';
-  SERVICES.forEach(s=>{
-    const row=document.createElement('div');row.className='svc';
-    row.innerHTML=`<div>
-        <div class="name">${s.name} <span class="billtag ${s.bill}">${BILL[s.bill].tag}</span></div>
-        <div class="desc">${s.desc}</div>
-        ${s.specify?`<input class="spec-in" type="text" data-spec="${s.id}" placeholder="${s.specify}">`:''}
-      </div>
-      <div class="svc-foot">
-        <div class="price-fixed" data-pricelbl="${s.id}">${money(s.price)} <span>/ unidad</span></div>
-        <div class="stepper"><button type="button" data-step="-1">−</button><input type="number" min="0" value="${s.qty}" data-qty="${s.id}"><button type="button" data-step="1">+</button></div>
-      </div>`;
-    c.appendChild(row);
+  const cur=$('#cur').value;
+  CATS.forEach(cat=>{
+    const items=SERVICES.filter(s=>s.cat===cat.key).sort((a,b)=>a.name.localeCompare(b.name,'es'));
+    if(!items.length)return;
+    const sec=document.createElement('div');sec.className='svc-section';
+    sec.innerHTML=`<div class="svc-sec-title">${cat.label} <span class="cnt">${items.length} servicios</span></div><div class="svc-grid"></div>`;
+    const grid=sec.querySelector('.svc-grid');
+    items.forEach(s=>{
+      const row=document.createElement('div');row.className='svc';
+      row.innerHTML=`<div>
+          <div class="name">${s.name} <span class="billtag ${s.bill}">${BILL[s.bill].tag}</span></div>
+          <div class="desc">${s.desc}</div>
+          ${s.specify?`<input class="spec-in" type="text" data-spec="${s.id}" placeholder="${s.specify}">`:''}
+        </div>
+        <div class="svc-foot">
+          <div class="price-edit" data-cur="${cur}"><input type="number" min="0" step="50" value="${s.price}" data-price="${s.id}" title="Precio editable"></div>
+          <div class="stepper"><button type="button" data-step="-1">−</button><input type="number" min="0" value="${s.qty}" data-qty="${s.id}"><button type="button" data-step="1">+</button></div>
+        </div>`;
+      grid.appendChild(row);
+    });
+    c.appendChild(sec);
   });
   c.querySelectorAll('[data-qty],[data-spec]').forEach(i=>i.addEventListener('input',calc));
+  c.querySelectorAll('[data-price]').forEach(i=>i.addEventListener('input',()=>savePrice(i.dataset.price,i.value)));
   c.querySelectorAll('.stepper button').forEach(b=>b.addEventListener('click',()=>{
     const inp=b.parentElement.querySelector('input');
     inp.value=Math.max(0,(+inp.value||0)+(+b.dataset.step));calc();
@@ -383,7 +419,8 @@ function buildServices(){
 function gather(){
   let base=0,pieces=0,monthlyBase=0,onceBase=0;const lines=[];
   SERVICES.forEach(s=>{
-    const price=s.price;
+    const pin=$(`[data-price="${s.id}"]`);
+    const price=pin?(+pin.value||0):s.price;
     const qty=+$(`[data-qty="${s.id}"]`).value||0;
     if(qty>0){
       const t=price*qty;base+=t;pieces+=qty;
@@ -413,7 +450,7 @@ function gather(){
 }
 
 function calc(){
-  SERVICES.forEach(s=>{const el=$(`[data-pricelbl="${s.id}"]`);if(el)el.innerHTML=`${money(s.price)} <span>/ unidad</span>`;});
+  const cur=$('#cur').value;document.querySelectorAll('.price-edit').forEach(p=>p.dataset.cur=cur);
   const g=gather();
   const bd=$('#breakdown');bd.innerHTML='';
   g.lines.forEach(l=>bd.insertAdjacentHTML('beforeend',`<div class="brow"><span>${l.qty}× ${l.name} <span style="color:var(--muted);font-size:11px">${BILL[l.bill].tag}</span></span><b>${money(l.total)}</b></div>`));
@@ -514,15 +551,29 @@ function generateDoc(){
   $('#d_sub').textContent=money2(g.subtotal);
   $('#d_disc').textContent='- '+money2(g.discount);
 
+  // IVA opcional
+  const applyIva=$('#f_iva').checked;
+  const rate=applyIva?0.16:0;
+  const ivaAmt=(g.subtotal-g.discount)*rate;
+  $('#d_ivalbl').textContent=applyIva?'IVA (16%)':'IVA (16%) (NO APLICA)';
+  $('#d_iva').textContent=money2(ivaAmt);
+  const f=x=>x*(1+rate); // aplica IVA a un monto
+
   const tt=$('#d_totals');
   if(g.mixed){
-    tt.innerHTML=`<div class="stotal"><span><small>Pago único · 1ª exhibición</small>INVERSIÓN INICIAL</span><span>${money2(g.onceTotal)}</span></div>
-      <div class="stotal alt"><span><small>Se cobra cada mes</small>MENSUALIDAD</span><span>${money2(g.monthlyTotal)}</span></div>
-      <div class="totlegend">Esta cotización tiene <b>dos cantidades</b> porque combina servicios de cobro distinto: la <b>inversión inicial</b> se paga una sola vez al arrancar el proyecto (desarrollo del sitio web), mientras que la <b>mensualidad</b> se cobra cada mes mientras el servicio esté activo (contenido, gestión y mantenimiento).
-        <div class="firstpay">Primer pago (inicial + 1ª mensualidad): ${money2(g.onceTotal+g.monthlyTotal)}</div></div>`;
+    const onceT=f(g.onceTotal), monthT=f(g.monthlyTotal);
+    const ivaNote=applyIva?' Las cantidades ya incluyen IVA.':'';
+    tt.innerHTML=`<div class="splitwrap">
+        <div class="splitbox once"><div class="sb-tag">Pago único · 1ª exhibición</div><div class="sb-amt">${money2(onceT)}</div>
+          <div class="sb-desc">Se paga <b>una sola vez</b> al arrancar el proyecto (ej. desarrollo del sitio web). No se vuelve a cobrar.</div></div>
+        <div class="splitplus">más</div>
+        <div class="splitbox month"><div class="sb-tag">Pago mensual</div><div class="sb-amt">${money2(monthT)}</div>
+          <div class="sb-desc">Se cobra <b>cada mes</b> mientras el servicio esté activo (contenido, gestión y mantenimiento).</div></div>
+        <div class="splitfirst">El día que arrancamos pagas el <b>único + la 1ª mensualidad</b> = <b>${money2(onceT+monthT)}</b>.${ivaNote}</div>
+      </div>`;
   }else{
     const lbl=g.onceBase>0?'TOTAL':'TOTAL MENSUAL';
-    tt.innerHTML=`<div class="stotal"><span>${lbl}</span><span>${money2(g.total)}</span></div>`;
+    tt.innerHTML=`<div class="stotal"><span>${lbl}</span><span>${money2(f(g.total))}</span></div>`;
   }
 
   const sign=localStorage.getItem('mc_sign');
