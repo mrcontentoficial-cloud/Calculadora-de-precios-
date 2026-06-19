@@ -6,7 +6,7 @@
 <title>Calculadora de Tarifas · Mr Content</title>
 <link href="https://fonts.cdnfonts.com/css/coolvetica" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
   :root{
@@ -63,9 +63,7 @@
   .svc-foot{display:flex;flex-direction:column;gap:8px;margin-top:auto}
   .foot-row{display:flex;align-items:center;gap:10px}
   .foot-lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);width:52px;flex:none}
-  .price-edit{position:relative;flex:1}
-  .price-edit::before{content:attr(data-cur);position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--accent-bright);font-size:14px;font-weight:700;pointer-events:none}
-  .price-edit input{width:100%;padding:9px 10px 9px 26px;font-weight:700;font-size:15px;text-align:left;height:42px}
+  .price-fixed{flex:1;height:42px;display:flex;align-items:center;padding:0 12px;font-weight:700;font-size:16px;color:#fff;background:#050409;border:1px solid var(--line);border-radius:11px}
   .svc-foot .stepper{flex:1}
   .toggles{margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
   @media(max-width:620px){.toggles{grid-template-columns:1fr}}
@@ -204,7 +202,7 @@
   <div class="grid">
     <div class="card">
       <h2>Servicios del plan</h2>
-      <p class="hint">Ajuste el precio y la cantidad de cada servicio. Tus cambios de precio se guardan automáticamente.</p>
+      <p class="hint">Ajuste la cantidad de cada servicio. Los precios son fijos.</p>
       <div id="services"></div>
 
       <div class="toggles">
@@ -388,9 +386,7 @@ const $=s=>document.querySelector(s);
 const money=n=>$('#cur').value+Math.round(n).toLocaleString('es-MX');
 const money2=n=>'$'+Number(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
 
-const PRICES=JSON.parse(localStorage.getItem('mc_prices')||'{}');
-SERVICES.forEach(s=>{if(PRICES[s.id]!=null)s.price=+PRICES[s.id];});
-function savePrice(id,val){const s=SERVICES.find(x=>x.id===id);s.price=+val||0;PRICES[id]=s.price;localStorage.setItem('mc_prices',JSON.stringify(PRICES));calc();}
+localStorage.removeItem('mc_prices'); // precios fijos: ignorar cualquier edición previa guardada
 
 function buildServices(){
   const c=$('#services');c.innerHTML='';
@@ -409,7 +405,7 @@ function buildServices(){
           ${s.specify?`<input class="spec-in" type="text" data-spec="${s.id}" placeholder="${s.specify}">`:''}
         </div>
         <div class="svc-foot">
-          <div class="foot-row"><span class="foot-lbl">Precio</span><div class="price-edit" data-cur="${cur}"><input type="number" min="0" step="50" value="${s.price}" data-price="${s.id}" title="Precio editable"></div></div>
+          <div class="foot-row"><span class="foot-lbl">Precio</span><div class="price-fixed" data-pricelbl="${s.id}">${money(s.price)}</div></div>
           <div class="foot-row"><span class="foot-lbl">Cant.</span><div class="stepper"><button type="button" data-step="-1">−</button><input type="number" min="0" value="${s.qty}" data-qty="${s.id}"><button type="button" data-step="1">+</button></div></div>
         </div>`;
       grid.appendChild(row);
@@ -417,7 +413,6 @@ function buildServices(){
     c.appendChild(sec);
   });
   c.querySelectorAll('[data-qty],[data-spec]').forEach(i=>i.addEventListener('input',calc));
-  c.querySelectorAll('[data-price]').forEach(i=>i.addEventListener('input',()=>savePrice(i.dataset.price,i.value)));
   c.querySelectorAll('.stepper button').forEach(b=>b.addEventListener('click',()=>{
     const inp=b.parentElement.querySelector('input');
     inp.value=Math.max(0,(+inp.value||0)+(+b.dataset.step));calc();
@@ -427,8 +422,7 @@ function buildServices(){
 function gather(){
   let base=0,pieces=0,monthlyBase=0,onceBase=0;const lines=[];
   SERVICES.forEach(s=>{
-    const pin=$(`[data-price="${s.id}"]`);
-    const price=pin?(+pin.value||0):s.price;
+    const price=s.price;
     const qty=+$(`[data-qty="${s.id}"]`).value||0;
     if(qty>0){
       const t=price*qty;base+=t;pieces+=qty;
@@ -458,7 +452,7 @@ function gather(){
 }
 
 function calc(){
-  const cur=$('#cur').value;document.querySelectorAll('.price-edit').forEach(p=>p.dataset.cur=cur);
+  SERVICES.forEach(s=>{const el=$(`[data-pricelbl="${s.id}"]`);if(el)el.textContent=money(s.price);});
   const g=gather();
   const bd=$('#breakdown');bd.innerHTML='';
   g.lines.forEach(l=>bd.insertAdjacentHTML('beforeend',`<div class="brow"><span>${l.qty}× ${l.name} <span style="color:var(--muted);font-size:11px">${BILL[l.bill].tag}</span></span><b>${money(l.total)}</b></div>`));
