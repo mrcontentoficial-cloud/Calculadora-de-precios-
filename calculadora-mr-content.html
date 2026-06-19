@@ -161,8 +161,10 @@
   .totlegend{margin:14px -20px -2px;padding:13px 20px 16px;font-size:10.5px;line-height:1.55;color:#6b6878;border-top:1px dashed #d8d2ee}
   .totlegend b{color:#5a3fa0}
   .firstpay{margin:10px 0 0;font-size:12px;color:#5a3fa0;text-align:right;font-weight:bold}
-  .splitwrap{margin:10px -20px 0;padding:0 4px}
-  .splitbox{border-radius:14px;padding:14px 16px;margin:10px 0;color:#fff}
+  .pay-section{margin-top:24px}
+  .pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
+  .pay-grid.single{grid-template-columns:1fr;max-width:50%}
+  .splitbox{border-radius:14px;padding:16px 18px;color:#fff;display:flex;flex-direction:column}
   .splitbox.once{background:linear-gradient(120deg,#6f4fb3,#9b6fd6)}
   .splitbox.month{background:linear-gradient(120deg,#241a3d,#5a3fa0)}
   .sb-tag{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:bold;opacity:.9}
@@ -346,9 +348,9 @@
         <div class="srow b"><span>Subtotal</span><span id="d_sub">$0.00</span></div>
         <div class="srow b"><span>Descuento</span><span id="d_disc">- $0.00</span></div>
         <div class="srow"><span id="d_ivalbl">IVA (16%) (NO APLICA)</span><span id="d_iva">$0.00</span></div>
-        <div id="d_totals"></div>
       </div>
     </div>
+    <div id="d_totals" class="pay-section"></div>
     <div class="signs">
       <div class="sign">Firma y nombre del cliente</div>
       <div class="sign"><img id="d_sign_img" style="height:52px;display:none;margin:-58px auto 6px">Firma del representante</div>
@@ -578,9 +580,9 @@ function generateDoc(){
   const onceT=f(g.onceTotal), monthT=f(g.monthlyTotal);
   const ivaNote=applyIva?'<div class="sb-iva">Las cantidades ya incluyen IVA (16%).</div>':'';
   if(g.mixed){
-    tt.innerHTML=`<div class="splitwrap">
+    tt.innerHTML=`<div class="pay-grid">
         <div class="splitbox once">
-          <div class="sb-tag">Para arrancar pagas</div>
+          <div class="sb-tag">Para arrancar pagas (hoy)</div>
           <div class="sb-amt">${money2(onceT+monthT)}</div>
           <div class="sb-break"><span>Pago único (una sola vez)</span><b>${money2(onceT)}</b></div>
           <div class="sb-break"><span>+ 1ª mensualidad</span><b>${money2(monthT)}</b></div>
@@ -590,12 +592,11 @@ function generateDoc(){
           <div class="sb-amt">${money2(monthT)}<span class="sb-mes">/mes</span></div>
           <div class="sb-desc">Pago recurrente mientras el servicio esté activo (contenido, gestión y mantenimiento). El pago único <b>no</b> se vuelve a cobrar.</div>
         </div>
-        ${ivaNote}
-      </div>`;
+      </div>${ivaNote}`;
   }else if(g.onceBase>0){
-    tt.innerHTML=`<div class="splitwrap"><div class="splitbox once"><div class="sb-tag">Pago único (una sola vez)</div><div class="sb-amt">${money2(onceT)}</div><div class="sb-desc">Pago de una sola exhibición. No es recurrente.</div></div>${ivaNote}</div>`;
+    tt.innerHTML=`<div class="pay-grid single"><div class="splitbox once"><div class="sb-tag">Pago único (una sola vez)</div><div class="sb-amt">${money2(onceT)}</div><div class="sb-desc">Pago de una sola exhibición. No es recurrente.</div></div></div>${ivaNote}`;
   }else{
-    tt.innerHTML=`<div class="splitwrap"><div class="splitbox month"><div class="sb-tag">Pago mensual</div><div class="sb-amt">${money2(monthT)}<span class="sb-mes">/mes</span></div><div class="sb-desc">Se cobra cada mes mientras el servicio esté activo.</div></div>${ivaNote}</div>`;
+    tt.innerHTML=`<div class="pay-grid single"><div class="splitbox month"><div class="sb-tag">Pago mensual</div><div class="sb-amt">${money2(monthT)}<span class="sb-mes">/mes</span></div><div class="sb-desc">Se cobra cada mes mientras el servicio esté activo.</div></div></div>${ivaNote}`;
   }
 
   const sign=localStorage.getItem('mc_sign');
