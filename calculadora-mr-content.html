@@ -120,22 +120,23 @@
   .doc-actions{max-width:794px;margin:0 auto 18px;display:flex;gap:12px}
   .doc-actions .btn{flex:1}
   .sheet{width:794px;max-width:96vw;margin:0 auto;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif;
-    padding:46px 48px;border-radius:22px;box-shadow:0 40px 90px -30px rgba(70,40,140,.45);position:relative;overflow:hidden}
+    padding:30px 44px 40px;border-radius:22px;box-shadow:0 40px 90px -30px rgba(70,40,140,.45);position:relative;overflow:hidden}
   .sheet .dot{position:absolute;width:9px;height:9px;border-radius:50%;background:#6f4fb3}
-  .sheet .dot.bl{left:34px;bottom:26px} .sheet .dot.br{right:34px;bottom:26px}
-  .doc-top{display:flex;justify-content:space-between;align-items:flex-start}
-  .doc-logo img{height:78px;display:block}
-  .pill{background:#7b6fd1;color:#fff;font-weight:bold;font-size:13px;letter-spacing:.12em;padding:11px 30px;border-radius:999px;display:inline-block}
-  .doc-no{font-size:26px;font-weight:bold;margin-top:12px;text-align:right;color:#111}
-  .doc-hr{border:none;border-top:1.5px solid #cfc9e6;margin:18px 0}
+  .sheet .dot.bl{left:34px;bottom:22px} .sheet .dot.br{right:34px;bottom:22px}
+  .doc-top{display:flex;justify-content:space-between;align-items:center}
+  .doc-logo img{height:52px;display:block}
+  .pill{background:#7b6fd1;color:#fff;font-weight:bold;font-size:11px;letter-spacing:.1em;padding:7px 20px;border-radius:999px;display:inline-block}
+  .doc-no{font-size:19px;font-weight:bold;margin-top:6px;text-align:right;color:#111}
+  .doc-hr{border:none;border-top:1.5px solid #cfc9e6;margin:12px 0}
   .meta{display:grid;grid-template-columns:1.4fr 1fr 1.3fr;gap:18px}
-  .meta .mlbl{color:#6f4fb3;font-size:10.5px;font-weight:bold;letter-spacing:.14em;margin-bottom:6px}
-  .meta .client{font-size:18px;font-weight:bold;color:#111}
-  .meta .company{font-size:18px;color:#9a96ad;margin-top:2px}
-  .meta .dline{font-size:16px;font-weight:bold;letter-spacing:.06em;border-bottom:1.4px solid #111;display:inline-block;padding:2px 4px 3px;margin-top:4px}
-  .meta .small2{font-size:10.5px;color:#777;margin-top:9px}
-  .meta .exec{font-size:15px;font-weight:bold;color:#111}
-  .sec-title{color:#6f4fb3;font-size:12px;font-weight:bold;letter-spacing:.16em;margin:26px 0 10px}
+  .meta .mlbl{color:#6f4fb3;font-size:10px;font-weight:bold;letter-spacing:.14em;margin-bottom:4px}
+  .meta .client{font-size:15px;font-weight:bold;color:#111}
+  .meta .company{font-size:14px;color:#9a96ad;margin-top:1px}
+  .meta .dline{font-size:14px;font-weight:bold;letter-spacing:.05em;border-bottom:1.4px solid #111;display:inline-block;padding:1px 4px 2px;margin-top:3px}
+  .meta .small2{font-size:10px;color:#777;margin-top:6px}
+  .meta .exec{font-size:13.5px;font-weight:bold;color:#111}
+  .meta .mlbl.mt{margin-top:11px}
+  .sec-title{color:#6f4fb3;font-size:12px;font-weight:bold;letter-spacing:.16em;margin:18px 0 9px}
   table.svc-t{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px;border:1px solid #e4e0f3;border-radius:14px;overflow:hidden}
   table.svc-t thead th{background:#0d0b14;color:#fff;text-align:left;padding:13px 16px;font-size:10.5px;font-weight:bold;letter-spacing:.08em;text-transform:uppercase}
   table.svc-t thead th.c{text-align:center} table.svc-t thead th.r{text-align:right}
@@ -316,7 +317,7 @@
       <div>
         <div class="mlbl">FECHA</div>
         <div class="dline" id="d_date">__ / __ / ____</div>
-        <div class="mlbl" style="margin-top:16px">VÁLIDO HASTA</div>
+        <div class="mlbl mt">VÁLIDO HASTA</div>
         <div class="dline" id="d_valid">__ / __ / ____</div>
       </div>
       <div>
@@ -590,7 +591,7 @@ function generateDoc(){
         <div class="splitbox month">
           <div class="sb-tag">Después, cada mes</div>
           <div class="sb-amt">${money2(monthT)}<span class="sb-mes">/mes</span></div>
-          <div class="sb-desc">Pago recurrente mientras el servicio esté activo (contenido, gestión y mantenimiento). El pago único <b>no</b> se vuelve a cobrar.</div>
+          ${applyIva?`<div class="sb-break"><span>Mensualidad sin IVA</span><b>${money2(g.monthlyTotal)}</b></div><div class="sb-break"><span>+ IVA (16%)</span><b>${money2(monthT-g.monthlyTotal)}</b></div>`:`<div class="sb-desc">Pago recurrente mientras el servicio esté activo. El pago único <b>no</b> se vuelve a cobrar.</div>`}
         </div>
       </div>${ivaNote}`;
   }else if(g.onceBase>0){
