@@ -166,11 +166,12 @@
   .splitbox.once{background:linear-gradient(120deg,#6f4fb3,#9b6fd6)}
   .splitbox.month{background:linear-gradient(120deg,#241a3d,#5a3fa0)}
   .sb-tag{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:bold;opacity:.9}
-  .sb-amt{font-size:25px;font-weight:bold;margin:2px 0 5px;letter-spacing:.02em}
+  .sb-amt{font-size:27px;font-weight:bold;margin:2px 0 7px;letter-spacing:.02em}
+  .sb-amt .sb-mes{font-size:13px;font-weight:600;opacity:.8;margin-left:3px}
   .sb-desc{font-size:10px;line-height:1.45;opacity:.92}
-  .splitplus{text-align:center;color:#6f4fb3;font-weight:bold;font-size:16px;margin:-4px 0}
-  .splitfirst{background:#ece9f9;border:1px dashed #b9addf;border-radius:12px;padding:11px 14px;margin-top:10px;font-size:11px;color:#5a3fa0;text-align:center}
-  .splitfirst b{font-size:14px}
+  .sb-break{display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:5px 0;border-top:1px solid rgba(255,255,255,.18)}
+  .sb-break span{opacity:.9}
+  .sb-iva{font-size:10px;color:#5a3fa0;text-align:center;margin-top:8px;font-weight:600}
   .signs{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:60px}
   .sign{text-align:center;border-top:1.4px solid #555;padding-top:9px;color:#555;font-size:11.5px}
   /* ===== IMPRESIÓN / GUARDAR COMO PDF ===== */
@@ -430,7 +431,7 @@ function gather(){
       if(s.bill==='unica')onceBase+=t;else monthlyBase+=t;
       let desc=s.desc;const spec=s.specify?($(`[data-spec="${s.id}"]`)?.value||'').trim():'';
       if(spec)desc+=' — '+spec;
-      lines.push({name:s.name,desc,qty,price,total:t,bill:s.bill,spec});
+      lines.push({name:s.name,desc,qty,price,total:t,bill:s.bill,spec,cat:s.cat});
     }
   });
   let surcharge=0,discount=0;const recs=[];
@@ -540,16 +541,27 @@ function generateDoc(){
   const mk=l=>`<tr><td><div class="d1">${l.name} ${chip(l.bill)}</div><div class="d2">${l.desc}.</div></td>
       <td class="c">${l.qty}</td><td class="r">${money2(l.price)}</td><td class="c">—</td><td class="r">${money2(l.total)}</td></tr>`;
   const grp=t=>`<tr class="grp"><td colspan="5">${t}</td></tr>`;
+
+  // Contenido se agrupa en un solo "Paquete de contenido"
+  const contentL=g.lines.filter(l=>l.bill==='mensual'&&l.cat==='contenido');
+  let pkg=null;
+  if(contentL.length){
+    const tot=contentL.reduce((a,l)=>a+l.total,0);
+    const incluye=contentL.map(l=>`${l.qty}× ${l.name.replace(/ \/.*$/,'').trim()}`).join(' · ');
+    pkg={name:'Paquete de contenido',desc:'Incluye: '+incluye,qty:1,price:tot,total:tot,bill:'mensual'};
+  }
   const once=g.lines.filter(l=>l.bill==='unica');
+  const otherMonthly=g.lines.filter(l=>l.bill==='mensual'&&l.cat!=='contenido');
   const recRows=g.recs.filter(r=>r.amt>0).map(r=>({name:r.n,desc:`Recargo estratégico (${r.pct}%)`,qty:1,price:r.amt,total:r.amt,bill:'mensual'}));
-  const month=g.lines.filter(l=>l.bill==='mensual').concat(recRows);
-  if(g.mixed){
+  const month=[...(pkg?[pkg]:[]),...otherMonthly,...recRows];
+
+  if(once.length&&month.length){
     tb.insertAdjacentHTML('beforeend',grp('Pago único · se cobra una sola vez al iniciar'));
     once.forEach(l=>tb.insertAdjacentHTML('beforeend',mk(l)));
     tb.insertAdjacentHTML('beforeend',grp('Servicios mensuales · se cobran cada mes'));
     month.forEach(l=>tb.insertAdjacentHTML('beforeend',mk(l)));
   }else{
-    g.lines.concat(recRows).forEach(l=>tb.insertAdjacentHTML('beforeend',mk(l)));
+    [...once,...month].forEach(l=>tb.insertAdjacentHTML('beforeend',mk(l)));
   }
   $('#d_sub').textContent=money2(g.subtotal);
   $('#d_disc').textContent='- '+money2(g.discount);
@@ -563,20 +575,27 @@ function generateDoc(){
   const f=x=>x*(1+rate); // aplica IVA a un monto
 
   const tt=$('#d_totals');
+  const onceT=f(g.onceTotal), monthT=f(g.monthlyTotal);
+  const ivaNote=applyIva?'<div class="sb-iva">Las cantidades ya incluyen IVA (16%).</div>':'';
   if(g.mixed){
-    const onceT=f(g.onceTotal), monthT=f(g.monthlyTotal);
-    const ivaNote=applyIva?' Las cantidades ya incluyen IVA.':'';
     tt.innerHTML=`<div class="splitwrap">
-        <div class="splitbox once"><div class="sb-tag">Pago único · 1ª exhibición</div><div class="sb-amt">${money2(onceT)}</div>
-          <div class="sb-desc">Se paga <b>una sola vez</b> al arrancar el proyecto (ej. desarrollo del sitio web). No se vuelve a cobrar.</div></div>
-        <div class="splitplus">más</div>
-        <div class="splitbox month"><div class="sb-tag">Pago mensual</div><div class="sb-amt">${money2(monthT)}</div>
-          <div class="sb-desc">Se cobra <b>cada mes</b> mientras el servicio esté activo (contenido, gestión y mantenimiento).</div></div>
-        <div class="splitfirst">El día que arrancamos pagas el <b>único + la 1ª mensualidad</b> = <b>${money2(onceT+monthT)}</b>.${ivaNote}</div>
+        <div class="splitbox once">
+          <div class="sb-tag">Para arrancar pagas</div>
+          <div class="sb-amt">${money2(onceT+monthT)}</div>
+          <div class="sb-break"><span>Pago único (una sola vez)</span><b>${money2(onceT)}</b></div>
+          <div class="sb-break"><span>+ 1ª mensualidad</span><b>${money2(monthT)}</b></div>
+        </div>
+        <div class="splitbox month">
+          <div class="sb-tag">Después, cada mes</div>
+          <div class="sb-amt">${money2(monthT)}<span class="sb-mes">/mes</span></div>
+          <div class="sb-desc">Pago recurrente mientras el servicio esté activo (contenido, gestión y mantenimiento). El pago único <b>no</b> se vuelve a cobrar.</div>
+        </div>
+        ${ivaNote}
       </div>`;
+  }else if(g.onceBase>0){
+    tt.innerHTML=`<div class="splitwrap"><div class="splitbox once"><div class="sb-tag">Pago único (una sola vez)</div><div class="sb-amt">${money2(onceT)}</div><div class="sb-desc">Pago de una sola exhibición. No es recurrente.</div></div>${ivaNote}</div>`;
   }else{
-    const lbl=g.onceBase>0?'TOTAL':'TOTAL MENSUAL';
-    tt.innerHTML=`<div class="stotal"><span>${lbl}</span><span>${money2(f(g.total))}</span></div>`;
+    tt.innerHTML=`<div class="splitwrap"><div class="splitbox month"><div class="sb-tag">Pago mensual</div><div class="sb-amt">${money2(monthT)}<span class="sb-mes">/mes</span></div><div class="sb-desc">Se cobra cada mes mientras el servicio esté activo.</div></div>${ivaNote}</div>`;
   }
 
   const sign=localStorage.getItem('mc_sign');
