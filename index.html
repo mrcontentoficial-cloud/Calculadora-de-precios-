@@ -610,15 +610,21 @@ function generateDoc(){
 function downloadPDF(){
   const sheet=$('#sheet');
   const name='Cotizacion_'+($('#f_no').value||'MrContent');
+  const btn=event&&event.target;
   // Con internet: descarga directa del PDF. Sin internet: abre Guardar como PDF (impresión).
   if(window.html2pdf){
-    const btn=event&&event.target; if(btn){btn.disabled=true;btn.textContent='Generando PDF…';}
+    if(btn){btn.disabled=true;btn.textContent='Generando PDF…';}
+    // Forzar ancho fijo para que el PDF salga completo (no recortado en pantallas angostas)
+    const prevW=sheet.style.width, prevMax=sheet.style.maxWidth;
+    sheet.style.width='794px'; sheet.style.maxWidth='794px';
+    const w=794, h=sheet.offsetHeight;
+    const restore=()=>{sheet.style.width=prevW;sheet.style.maxWidth=prevMax;if(btn){btn.disabled=false;btn.textContent='Descargar PDF';}};
     html2pdf().set({margin:0,filename:name+'.pdf',image:{type:'jpeg',quality:.98},
-      html2canvas:{scale:2.5,useCORS:true,backgroundColor:'#ffffff',windowWidth:sheet.scrollWidth},
-      jsPDF:{unit:'px',format:[sheet.offsetWidth,sheet.offsetHeight],orientation:'portrait'}})
+      html2canvas:{scale:2.5,useCORS:true,backgroundColor:'#ffffff',width:w,height:h,windowWidth:w,scrollX:0,scrollY:0},
+      jsPDF:{unit:'px',format:[w,h],orientation:'portrait'}})
       .from(sheet).save()
-      .then(()=>{if(btn){btn.disabled=false;btn.textContent='Descargar PDF';}})
-      .catch(()=>{if(btn){btn.disabled=false;btn.textContent='Descargar PDF';} fallbackPrint(name);});
+      .then(restore)
+      .catch(()=>{restore();fallbackPrint(name);});
   }else{
     fallbackPrint(name);
   }
